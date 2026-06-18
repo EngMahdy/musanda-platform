@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تسجيل الدخول | مساندة</title>
+<link href="/static/fonts/cairo.css" rel="stylesheet">
+<link href="/static/fa.local.css" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0c1a35;--gold:#c9a84c;--gold2:#f0c040;
+  --light:#f0f4f8;--white:#ffffff;
+  --text:#1e293b;--sub:#64748b;
+  --error:#ef4444;--success:#10b981;
+}
+body{
+  font-family:'Cairo',sans-serif;
+  background:linear-gradient(135deg,var(--navy) 0%,#1a2e52 100%);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.login-container{
+  background:#fff;
+  border-radius:24px;
+  padding:48px 40px;
+  width:100%;
+  max-width:440px;
+  box-shadow:0 25px 50px -12px rgba(0,0,0,.5);
+}
+.logo-area{text-align:center;margin-bottom:32px}
+.logo-area img{width:80px;height:80px;border-radius:16px;margin-bottom:16px}
+.logo-area h1{font-size:22px;color:var(--navy);font-weight:900;margin-bottom:4px}
+.logo-area p{font-size:13px;color:var(--sub)}
+.tab-row{display:flex;background:var(--light);border-radius:12px;padding:4px;margin-bottom:24px}
+.tab-btn{flex:1;padding:10px;background:transparent;border:none;border-radius:8px;cursor:pointer;font-family:'Cairo';font-weight:700;color:var(--sub);transition:.2s}
+.tab-btn.active{background:#fff;color:var(--navy);box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+.form-group input{width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-family:'Cairo';font-size:14px;transition:.2s}
+.form-group input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.15)}
+.btn-submit{
+  width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--navy);border:none;border-radius:10px;font-family:'Cairo';
+  font-weight:900;font-size:15px;cursor:pointer;transition:.2s;
+  margin-top:8px;
+}
+.btn-submit:hover{transform:translateY(-1px);box-shadow:0 10px 25px rgba(201,168,76,.4)}
+.btn-submit:disabled{opacity:.6;cursor:not-allowed}
+.error-msg{background:#fee2e2;color:var(--error);padding:12px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none}
+.error-msg.show{display:block}
+.success-msg{background:#d1fae5;color:var(--success);padding:12px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none}
+.success-msg.show{display:block}
+.back-link{display:block;text-align:center;color:var(--sub);font-size:13px;margin-top:20px;text-decoration:none}
+.back-link:hover{color:var(--navy)}
+.form-section{display:none}
+.form-section.active{display:block}
+</style>
+</head>
+<body>
+<div class="login-container">
+  <div class="logo-area">
+    <img src="/static/imgs/logo.png" alt="مساندة">
+    <h1>منصة مساندة</h1>
+    <p>للاستشارات الهندسية ودراسات الجدوى</p>
+  </div>
+  
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="switchTab('login')">تسجيل دخول</button>
+    <button class="tab-btn" onclick="switchTab('register')">حساب جديد</button>
+  </div>
+  
+  <div id="errorMsg" class="error-msg"></div>
+  <div id="successMsg" class="success-msg"></div>
+  
+  <!-- Login Form -->
+  <form id="loginForm" class="form-section active" onsubmit="handleLogin(event)">
+    <div class="form-group">
+      <label>البريد الإلكتروني</label>
+      <input type="email" id="loginEmail" required placeholder="example@email.com">
+    </div>
+    <div class="form-group">
+      <label>كلمة المرور</label>
+      <input type="password" id="loginPassword" required placeholder="••••••••">
+    </div>
+    <button type="submit" class="btn-submit" id="loginBtn">
+      <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+    </button>
+  </form>
+  
+  <!-- Register Form -->
+  <form id="registerForm" class="form-section" onsubmit="handleRegister(event)">
+    <div class="form-group">
+      <label>الاسم الكامل</label>
+      <input type="text" id="regName" required placeholder="محمد أحمد">
+    </div>
+    <div class="form-group">
+      <label>البريد الإلكتروني</label>
+      <input type="email" id="regEmail" required placeholder="example@email.com">
+    </div>
+    <div class="form-group">
+      <label>رقم الهاتف</label>
+      <input type="tel" id="regPhone" required placeholder="+971 50 123 4567">
+    </div>
+    <div class="form-group">
+      <label>الشركة (اختياري)</label>
+      <input type="text" id="regCompany" placeholder="اسم الشركة">
+    </div>
+    <div class="form-group">
+      <label>كلمة المرور</label>
+      <input type="password" id="regPassword" required minlength="6" placeholder="6 أحرف على الأقل">
+    </div>
+    <button type="submit" class="btn-submit" id="registerBtn">
+      <i class="fas fa-user-plus"></i> إنشاء حساب
+    </button>
+  </form>
+  
+  <a href="/" class="back-link"><i class="fas fa-arrow-right"></i> العودة للرئيسية</a>
+</div>
+
+<script>
+const API = window.location.origin + '/api';
+
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.form-section').forEach(s=>s.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(tab+'Form').classList.add('active');
+  hideMessages();
+}
+
+function showError(msg){
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('show');
+  document.getElementById('successMsg').classList.remove('show');
+}
+
+function showSuccess(msg){
+  const el = document.getElementById('successMsg');
+  el.textContent = msg;
+  el.classList.add('show');
+  document.getElementById('errorMsg').classList.remove('show');
+}
+
+function hideMessages(){
+  document.getElementById('errorMsg').classList.remove('show');
+  document.getElementById('successMsg').classList.remove('show');
+}
+
+async function handleLogin(e){
+  e.preventDefault();
+  hideMessages();
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تسجيل الدخول...';
+  
+  try{
+    const res = await fetch(API+'/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        email: document.getElementById('loginEmail').value,
+        password: document.getElementById('loginPassword').value,
+      })
+    });
+    const data = await res.json();
+    
+    if(!res.ok) throw new Error(data.detail || 'فشل تسجيل الدخول');
+    
+    // Save token
+    localStorage.setItem('musanada_token', data.access_token);
+    localStorage.setItem('musanada_user', JSON.stringify(data.user));
+    
+    showSuccess('تم تسجيل الدخول بنجاح! جاري التحويل...');
+    
+    setTimeout(()=>{
+      if(data.user.role === 'admin' || data.user.role === 'staff'){
+        window.location.href = '/admin';
+      } else {
+        window.location.href = '/portal';
+      }
+    }, 800);
+  } catch(err){
+    showError(err.message);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> تسجيل الدخول';
+  }
+}
+
+async function handleRegister(e){
+  e.preventDefault();
+  hideMessages();
+  const btn = document.getElementById('registerBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإنشاء...';
+  
+  try{
+    const res = await fetch(API+'/auth/register', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        full_name: document.getElementById('regName').value,
+        email: document.getElementById('regEmail').value,
+        phone: document.getElementById('regPhone').value,
+        company: document.getElementById('regCompany').value || null,
+        password: document.getElementById('regPassword').value,
+      })
+    });
+    const data = await res.json();
+    
+    if(!res.ok) throw new Error(data.detail || 'فشل إنشاء الحساب');
+    
+    // Auto-login
+    localStorage.setItem('musanada_token', data.access_token);
+    localStorage.setItem('musanada_user', JSON.stringify(data.user));
+    
+    showSuccess('تم إنشاء الحساب بنجاح! جاري التحويل...');
+    setTimeout(()=>window.location.href='/portal', 1000);
+  } catch(err){
+    showError(err.message);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-user-plus"></i> إنشاء حساب';
+  }
+}
+
+// Check if already logged in
+window.addEventListener('load',()=>{
+  const token = localStorage.getItem('musanada_token');
+  if(token){
+    const user = JSON.parse(localStorage.getItem('musanada_user') || '{}');
+    if(user.role === 'admin' || user.role === 'staff'){
+      window.location.href = '/admin';
+    } else if(user.role === 'client'){
+      window.location.href = '/portal';
+    }
+  }
+});
+</script>
+</body>
+</html>

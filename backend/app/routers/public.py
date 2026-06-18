@@ -1,8 +1,11 @@
-"""Public API — Contact forms, service requests"""
-from fastapi import APIRouter, BackgroundTasks
+"""Public API — Contact forms, service requests, leads"""
+from fastapi import APIRouter, Depends, BackgroundTasks
+from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from datetime import datetime
+
+from app.models.database import get_db, Lead
 
 router = APIRouter()
 
@@ -19,31 +22,54 @@ class ServiceRequest(BaseModel):
     phone: str
     email: EmailStr
     company: Optional[str] = None
-    service_type: str  # license, classification, feasibility, etc.
-    project_details: str
+    service_type: str
+    project_details: Optional[str] = None
     budget_range: Optional[str] = None
-    timeline: Optional[str] = None
 
 
 @router.post("/contact")
-async def submit_contact(req: ContactRequest, bg: BackgroundTasks):
+async def submit_contact(req: ContactRequest, db: Session = Depends(get_db)):
     """نموذج التواصل العام"""
-    # TODO: Save to DB + Send email notification
+    lead = Lead(
+        name=req.name,
+        email=req.email,
+        phone=req.phone,
+        message=req.message,
+        source="website_contact",
+        status="new",
+    )
+    db.add(lead)
+    db.commit()
+    db.refresh(lead)
+    
     return {
         "status": "received",
         "message": "شكراً لتواصلك! سيتم الرد عليك خلال 24 ساعة.",
-        "ticket_id": f"CONTACT-{int(datetime.now().timestamp())}"
+        "ticket_id": f"CONTACT-{lead.id}"
     }
 
 
 @router.post("/service-request")
-async def submit_service_request(req: ServiceRequest, bg: BackgroundTasks):
+async def submit_service_request(req: ServiceRequest, db: Session = Depends(get_db)):
     """طلب خدمة محددة"""
-    # TODO: Create Lead in CRM
+    lead = Lead(
+        name=req.name,
+        email=req.email,
+        phone=req.phone,
+        company=req.company,
+        service_interest=req.service_type,
+        message=req.project_details or "",
+        source="website_service_request",
+        status="new",
+    )
+    db.add(lead)
+    db.commit()
+    db.refresh(lead)
+    
     return {
         "status": "received",
         "message": "تم استلام طلبك! فريقنا سيتواصل معك خلال 24 ساعة.",
-        "request_id": f"REQ-{int(datetime.now().timestamp())}"
+        "request_id": f"REQ-{lead.id}"
     }
 
 

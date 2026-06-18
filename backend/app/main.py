@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # Local imports
 from app.core.config import settings
+from app.models.database import init_db
 from app.routers import (
     public,
     calculators,
@@ -31,6 +32,14 @@ async def lifespan(app: FastAPI):
     print("🚀 مساندة 2.0 — Starting up...")
     print(f"📍 Environment: {settings.ENVIRONMENT}")
     print(f"🌐 Frontend dir: {settings.FRONTEND_DIR}")
+    
+    # Initialize database
+    try:
+        init_db()
+        print("✅ Database initialized")
+    except Exception as e:
+        print(f"⚠️ Database init warning: {e}")
+    
     yield
     print("👋 Shutting down...")
 
@@ -48,7 +57,7 @@ app = FastAPI(
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origins=settings.ALLOWED_ORIGINS + ["*"],  # Allow all in dev
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -71,10 +80,17 @@ async def health_check():
         "service": "musanada-platform",
         "version": "2.0.0",
         "environment": settings.ENVIRONMENT,
+        "features": {
+            "calculators": True,
+            "auth": True,
+            "client_portal": True,
+            "admin_panel": True,
+            "ai_tenders": True,
+        }
     }
 
 
-# ===== Static Files (Frontend) =====
+# ===== Static Files =====
 FRONTEND_DIR = Path(settings.FRONTEND_DIR)
 if FRONTEND_DIR.exists() and (FRONTEND_DIR / "static").exists():
     app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR / "static")), name="static")
@@ -89,10 +105,15 @@ async def serve_frontend(request: Request, full_path: str):
     if not FRONTEND_DIR.exists():
         return JSONResponse({
             "message": "مساندة 2.0 Backend",
-            "note": "Frontend not deployed yet",
             "api_docs": "/api/docs",
             "health": "/healthz"
         })
+    
+    # Check for specific HTML files
+    if full_path in ["portal", "admin", "login", "register"]:
+        specific = FRONTEND_DIR / f"{full_path}.html"
+        if specific.exists():
+            return FileResponse(specific)
     
     # Default to index.html
     file_path = FRONTEND_DIR / (full_path if full_path else "index.html")

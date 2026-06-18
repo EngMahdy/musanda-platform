@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>بوابة العميل | مساندة</title>
+<link href="/static/fonts/cairo.css" rel="stylesheet">
+<link href="/static/fa.local.css" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0c1a35;--gold:#c9a84c;--gold2:#f0c040;
+  --light:#f0f4f8;--white:#ffffff;
+  --text:#1e293b;--sub:#64748b;--border:#e2e8f0;
+  --blue:#2563eb;--green:#10b981;--orange:#f59e0b;--red:#ef4444;
+}
+body{font-family:'Cairo',sans-serif;background:var(--light);color:var(--text);min-height:100vh}
+
+/* Sidebar */
+.app-layout{display:flex;min-height:100vh}
+.sidebar{width:260px;background:var(--navy);color:#fff;padding:24px;position:fixed;height:100vh;overflow-y:auto}
+.sidebar-logo{display:flex;align-items:center;gap:12px;margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo img{width:42px;height:42px;border-radius:8px}
+.sidebar-logo h2{font-size:16px;font-weight:900;color:var(--gold)}
+.sidebar-logo p{font-size:11px;color:rgba(255,255,255,.6)}
+
+.menu-section{margin-bottom:24px}
+.menu-label{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;font-weight:700;margin-bottom:12px;letter-spacing:1px}
+.menu-item{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;
+  border-radius:10px;cursor:pointer;color:rgba(255,255,255,.7);
+  transition:.2s;font-size:14px;font-weight:600;margin-bottom:4px;
+  border:none;background:transparent;width:100%;text-align:right;font-family:'Cairo'
+}
+.menu-item:hover{background:rgba(255,255,255,.05);color:#fff}
+.menu-item.active{background:rgba(201,168,76,.15);color:var(--gold)}
+.menu-item i{width:18px}
+
+/* Main Content */
+.main{flex:1;margin-right:260px;padding:32px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}
+.welcome h1{font-size:24px;font-weight:900;color:var(--navy);margin-bottom:4px}
+.welcome p{color:var(--sub);font-size:14px}
+.user-menu{display:flex;align-items:center;gap:12px;background:#fff;padding:10px 16px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:900}
+.user-info{font-size:13px}
+.user-info b{display:block;color:var(--text)}
+.user-info span{color:var(--sub);font-size:11px}
+.logout-btn{background:transparent;border:none;color:var(--red);cursor:pointer;padding:8px;font-size:14px}
+
+/* Stats Cards */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.stat-card{background:#fff;padding:20px;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.stat-card .icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;margin-bottom:12px}
+.stat-card.blue .icon{background:var(--blue)}
+.stat-card.green .icon{background:var(--green)}
+.stat-card.orange .icon{background:var(--orange)}
+.stat-card.gold .icon{background:var(--gold)}
+.stat-card .num{font-size:28px;font-weight:900;color:var(--navy);line-height:1}
+.stat-card .label{color:var(--sub);font-size:13px;margin-top:6px}
+
+/* Sections */
+.section{background:#fff;border-radius:14px;padding:24px;margin-bottom:24px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.section h2{font-size:18px;font-weight:900;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+
+/* Projects */
+.project-card{
+  padding:16px;border:1px solid var(--border);border-radius:12px;
+  margin-bottom:12px;cursor:pointer;transition:.2s;
+}
+.project-card:hover{border-color:var(--gold);box-shadow:0 4px 12px rgba(0,0,0,.05)}
+.project-card .head{display:flex;justify-content:space-between;align-items:start;margin-bottom:8px}
+.project-card h3{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.project-card p{font-size:12px;color:var(--sub)}
+.status-badge{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700}
+.status-new{background:#dbeafe;color:#1e40af}
+.status-in_progress{background:#fef3c7;color:#92400e}
+.status-completed{background:#d1fae5;color:#065f46}
+.status-pending_docs{background:#fee2e2;color:#991b1b}
+
+/* New Project Button */
+.btn-primary{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--navy);border:none;padding:10px 20px;border-radius:10px;
+  font-weight:700;font-family:'Cairo';cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;font-size:13px;
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(201,168,76,.3)}
+
+.empty-state{text-align:center;padding:40px;color:var(--sub)}
+.empty-state i{font-size:48px;color:var(--border);margin-bottom:16px}
+.empty-state p{margin-bottom:16px}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:1000}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:32px;width:90%;max-width:500px;max-height:90vh;overflow-y:auto}
+.modal h2{margin-bottom:20px;color:var(--navy)}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+.form-group input,.form-group select,.form-group textarea{
+  width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:'Cairo';font-size:14px;
+}
+.form-group input:focus,.form-group textarea:focus{outline:none;border-color:var(--gold)}
+.btn-row{display:flex;gap:10px;margin-top:20px}
+.btn-cancel{background:#f1f5f9;color:var(--text);border:none;padding:10px 20px;border-radius:8px;font-family:'Cairo';font-weight:700;cursor:pointer;flex:1}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(100%);transition:.3s}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-right:0;padding:16px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="/static/imgs/logo.png" alt="مساندة">
+      <div>
+        <h2>مساندة</h2>
+        <p>بوابة العميل</p>
+      </div>
+    </div>
+    
+    <div class="menu-section">
+      <div class="menu-label">القائمة</div>
+      <button class="menu-item active" onclick="switchView('dashboard')">
+        <i class="fas fa-home"></i> الرئيسية
+      </button>
+      <button class="menu-item" onclick="switchView('projects')">
+        <i class="fas fa-folder"></i> مشاريعي
+      </button>
+      <button class="menu-item" onclick="switchView('documents')">
+        <i class="fas fa-file-alt"></i> المستندات
+      </button>
+      <button class="menu-item" onclick="switchView('messages')">
+        <i class="fas fa-comments"></i> الرسائل
+      </button>
+    </div>
+    
+    <div class="menu-section">
+      <div class="menu-label">حسابي</div>
+      <button class="menu-item" onclick="switchView('profile')">
+        <i class="fas fa-user"></i> الملف الشخصي
+      </button>
+      <button class="menu-item" onclick="window.location.href='/'">
+        <i class="fas fa-arrow-right"></i> العودة للموقع
+      </button>
+    </div>
+  </aside>
+  
+  <!-- Main -->
+  <main class="main">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="welcome">
+        <h1 id="welcomeTitle">مرحباً بك</h1>
+        <p>هنا تجد كل مشاريعك وحالة معاملاتك</p>
+      </div>
+      <div class="user-menu">
+        <div class="user-avatar" id="userAvatar">م</div>
+        <div class="user-info">
+          <b id="userName">جاري التحميل...</b>
+          <span id="userEmail">...</span>
+        </div>
+        <button class="logout-btn" onclick="logout()" title="تسجيل خروج">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Stats -->
+    <div class="stats-grid" id="statsGrid"></div>
+    
+    <!-- Content Sections -->
+    <div id="dashboardView">
+      <div class="section">
+        <h2><i class="fas fa-folder-open" style="color:var(--gold)"></i> مشاريعي الحديثة</h2>
+        <div id="recentProjects"></div>
+      </div>
+    </div>
+    
+    <div id="projectsView" style="display:none">
+      <div class="section">
+        <h2 style="display:flex;justify-content:space-between;align-items:center;width:100%">
+          <span><i class="fas fa-folder" style="color:var(--gold)"></i> جميع مشاريعي</span>
+          <button class="btn-primary" onclick="openNewProjectModal()">
+            <i class="fas fa-plus"></i> مشروع جديد
+          </button>
+        </h2>
+        <div id="allProjects"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- New Project Modal -->
+<div class="modal-bg" id="newProjectModal">
+  <div class="modal">
+    <h2><i class="fas fa-plus-circle" style="color:var(--gold)"></i> مشروع جديد</h2>
+    <form onsubmit="createProject(event)">
+      <div class="form-group">
+        <label>عنوان المشروع</label>
+        <input type="text" id="newTitle" required placeholder="مثال: ترخيص شركة استشارات هندسية">
+      </div>
+      <div class="form-group">
+        <label>نوع الخدمة</label>
+        <select id="newServiceType" required>
+          <option value="">اختر...</option>
+          <option value="trade_license">استخراج رخصة تجارية</option>
+          <option value="industrial_license">رخصة صناعية</option>
+          <option value="engineering_license">ترخيص هندسي</option>
+          <option value="classification">تصنيف الشركات</option>
+          <option value="feasibility">دراسة جدوى</option>
+          <option value="building_permits">ترخيص بناء</option>
+          <option value="land_allocation">تخصيص أراضي</option>
+          <option value="adio_services">خدمات ADIO</option>
+          <option value="ports_services">خدمات الموانئ</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>الوصف (اختياري)</label>
+        <textarea id="newDescription" rows="4" placeholder="تفاصيل إضافية عن المشروع..."></textarea>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn-cancel" onclick="closeNewProjectModal()">إلغاء</button>
+        <button type="submit" class="btn-primary" style="flex:1;justify-content:center">
+          <i class="fas fa-check"></i> إنشاء المشروع
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const API = window.location.origin + '/api';
+const token = localStorage.getItem('musanada_token');
+const user = JSON.parse(localStorage.getItem('musanada_user') || 'null');
+
+// Auth check
+if(!token || !user){
+  window.location.href = '/login';
+}
+
+// Init
+document.getElementById('userName').textContent = user.full_name;
+document.getElementById('userEmail').textContent = user.email;
+document.getElementById('userAvatar').textContent = user.full_name[0];
+document.getElementById('welcomeTitle').textContent = `مرحباً ${user.full_name}`;
+
+// Headers
+const headers = {
+  'Content-Type': 'application/json',
+  'Authorization': 'Bearer ' + token
+};
+
+// Load dashboard
+async function loadDashboard(){
+  try{
+    const res = await fetch(API+'/portal/dashboard', {headers});
+    const data = await res.json();
+    
+    if(!res.ok) throw new Error(data.detail);
+    
+    // Stats
+    const stats = data.stats;
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="stat-card blue">
+        <div class="icon"><i class="fas fa-folder"></i></div>
+        <div class="num">${stats.total_projects}</div>
+        <div class="label">إجمالي المشاريع</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="icon"><i class="fas fa-spinner"></i></div>
+        <div class="num">${stats.active}</div>
+        <div class="label">مشاريع نشطة</div>
+      </div>
+      <div class="stat-card green">
+        <div class="icon"><i class="fas fa-check-circle"></i></div>
+        <div class="num">${stats.completed}</div>
+        <div class="label">مشاريع مكتملة</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="icon"><i class="fas fa-clock"></i></div>
+        <div class="num">${stats.pending}</div>
+        <div class="label">قيد الانتظار</div>
+      </div>
+    `;
+    
+    // Recent projects
+    const container = document.getElementById('recentProjects');
+    if(data.recent_projects.length === 0){
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-folder-open"></i>
+          <p>لا توجد مشاريع بعد</p>
+          <button class="btn-primary" onclick="switchView('projects'); openNewProjectModal()">
+            <i class="fas fa-plus"></i> أنشئ مشروعك الأول
+          </button>
+        </div>
+      `;
+    } else {
+      container.innerHTML = data.recent_projects.map(p => `
+        <div class="project-card">
+          <div class="head">
+            <div>
+              <h3>${p.title}</h3>
+              <p>${getServiceLabel(p.service_type)}</p>
+            </div>
+            <span class="status-badge status-${p.status}">${getStatusLabel(p.status)}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+  } catch(err){
+    console.error(err);
+  }
+}
+
+async function loadAllProjects(){
+  try{
+    const res = await fetch(API+'/portal/projects', {headers});
+    const data = await res.json();
+    
+    const container = document.getElementById('allProjects');
+    if(data.projects.length === 0){
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-folder-open"></i>
+          <p>لا توجد مشاريع</p>
+        </div>
+      `;
+    } else {
+      container.innerHTML = data.projects.map(p => `
+        <div class="project-card">
+          <div class="head">
+            <div>
+              <h3>${p.title}</h3>
+              <p>${getServiceLabel(p.service_type)} — أُنشئ في ${new Date(p.created_at).toLocaleDateString('ar-AE')}</p>
+            </div>
+            <span class="status-badge status-${p.status}">${getStatusLabel(p.status)}</span>
+          </div>
+          ${p.description ? `<p style="font-size:13px;color:var(--sub);margin-top:8px">${p.description}</p>` : ''}
+        </div>
+      `).join('');
+    }
+  } catch(err){
+    console.error(err);
+  }
+}
+
+function getStatusLabel(s){
+  const labels = {
+    'new': 'جديد',
+    'in_progress': 'قيد التنفيذ',
+    'pending_docs': 'بانتظار مستندات',
+    'under_review': 'قيد المراجعة',
+    'completed': 'مكتمل',
+    'cancelled': 'ملغي',
+  };
+  return labels[s] || s;
+}
+
+function getServiceLabel(s){
+  const labels = {
+    'trade_license': 'رخصة تجارية',
+    'industrial_license': 'رخصة صناعية',
+    'engineering_license': 'ترخيص هندسي',
+    'classification': 'تصنيف شركات',
+    'feasibility': 'دراسة جدوى',
+    'building_permits': 'ترخيص بناء',
+    'land_allocation': 'تخصيص أراضي',
+    'adio_services': 'خدمات ADIO',
+    'ports_services': 'خدمات موانئ',
+  };
+  return labels[s] || s;
+}
+
+function switchView(view){
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+  event && event.target.closest('.menu-item') && event.target.closest('.menu-item').classList.add('active');
+  
+  document.getElementById('dashboardView').style.display = 'none';
+  document.getElementById('projectsView').style.display = 'none';
+  
+  if(view === 'dashboard'){
+    document.getElementById('dashboardView').style.display = 'block';
+    loadDashboard();
+  } else if(view === 'projects'){
+    document.getElementById('projectsView').style.display = 'block';
+    loadAllProjects();
+  }
+}
+
+function openNewProjectModal(){
+  document.getElementById('newProjectModal').classList.add('show');
+}
+function closeNewProjectModal(){
+  document.getElementById('newProjectModal').classList.remove('show');
+}
+
+async function createProject(e){
+  e.preventDefault();
+  try{
+    const res = await fetch(API+'/portal/projects', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        title: document.getElementById('newTitle').value,
+        service_type: document.getElementById('newServiceType').value,
+        description: document.getElementById('newDescription').value || null,
+      })
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.detail);
+    
+    closeNewProjectModal();
+    document.getElementById('newTitle').value = '';
+    document.getElementById('newServiceType').value = '';
+    document.getElementById('newDescription').value = '';
+    
+    loadAllProjects();
+    loadDashboard();
+    alert('✅ تم إنشاء المشروع بنجاح!');
+  } catch(err){
+    alert('❌ خطأ: ' + err.message);
+  }
+}
+
+function logout(){
+  if(confirm('تسجيل الخروج؟')){
+    localStorage.removeItem('musanada_token');
+    localStorage.removeItem('musanada_user');
+    window.location.href = '/login';
+  }
+}
+
+// Init
+loadDashboard();
+</script>
+</body>
+</html>

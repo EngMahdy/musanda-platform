@@ -1,4 +1,4 @@
-# مساندة 2.0 - Backend Dependencies (Minimal for first deploy)
+# مساندة 2.0 - Backend Dependencies
 
 # Web Framework
 fastapi==0.115.0
@@ -8,6 +8,16 @@ python-multipart==0.0.12
 # Validation
 pydantic==2.9.2
 email-validator==2.2.0
+
+# Auth & Security
+python-jose[cryptography]==3.3.0
+bcrypt==4.2.0
+
+# Database
+sqlalchemy==2.0.35
+
+# PDF & Documents (optional - will skip if not available)
+pypdf==5.0.1
 
 # Utils
 python-dotenv==1.0.1

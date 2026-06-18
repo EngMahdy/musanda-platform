@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لوحة الإدارة | مساندة</title>
+<link href="/static/fonts/cairo.css" rel="stylesheet">
+<link href="/static/fa.local.css" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0c1a35;--gold:#c9a84c;--gold2:#f0c040;
+  --light:#f0f4f8;--white:#ffffff;
+  --text:#1e293b;--sub:#64748b;--border:#e2e8f0;
+  --blue:#2563eb;--green:#10b981;--orange:#f59e0b;--red:#ef4444;--purple:#7c3aed;
+}
+body{font-family:'Cairo',sans-serif;background:var(--light);color:var(--text);min-height:100vh}
+
+.app-layout{display:flex;min-height:100vh}
+.sidebar{width:260px;background:var(--navy);color:#fff;padding:24px;position:fixed;height:100vh;overflow-y:auto}
+.sidebar-logo{display:flex;align-items:center;gap:12px;margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo img{width:42px;height:42px;border-radius:8px}
+.sidebar-logo h2{font-size:16px;font-weight:900;color:var(--gold)}
+.sidebar-logo p{font-size:11px;color:rgba(255,255,255,.6)}
+.admin-badge{display:inline-block;background:var(--gold);color:var(--navy);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:900;margin-top:4px}
+
+.menu-section{margin-bottom:24px}
+.menu-label{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;font-weight:700;margin-bottom:12px;letter-spacing:1px}
+.menu-item{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;
+  border-radius:10px;cursor:pointer;color:rgba(255,255,255,.7);
+  transition:.2s;font-size:14px;font-weight:600;margin-bottom:4px;
+  border:none;background:transparent;width:100%;text-align:right;font-family:'Cairo'
+}
+.menu-item:hover{background:rgba(255,255,255,.05);color:#fff}
+.menu-item.active{background:rgba(201,168,76,.15);color:var(--gold)}
+.menu-item .badge{margin-right:auto;background:var(--red);color:#fff;padding:2px 6px;border-radius:10px;font-size:10px}
+
+.main{flex:1;margin-right:260px;padding:32px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}
+.topbar h1{font-size:24px;font-weight:900;color:var(--navy)}
+.topbar p{color:var(--sub);font-size:14px}
+.user-menu{display:flex;align-items:center;gap:12px;background:#fff;padding:10px 16px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:900}
+.logout-btn{background:transparent;border:none;color:var(--red);cursor:pointer;padding:8px}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.stat-card{background:#fff;padding:20px;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.stat-card .icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;margin-bottom:12px}
+.stat-card.blue .icon{background:var(--blue)}
+.stat-card.green .icon{background:var(--green)}
+.stat-card.orange .icon{background:var(--orange)}
+.stat-card.purple .icon{background:var(--purple)}
+.stat-card .num{font-size:28px;font-weight:900;color:var(--navy);line-height:1}
+.stat-card .label{color:var(--sub);font-size:13px;margin-top:6px}
+
+.section{background:#fff;border-radius:14px;padding:24px;margin-bottom:24px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.section h2{font-size:18px;font-weight:900;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+
+/* Table */
+.table{width:100%;border-collapse:collapse}
+.table th{text-align:right;padding:12px;background:var(--light);color:var(--sub);font-size:12px;font-weight:700;border-bottom:2px solid var(--border)}
+.table td{padding:12px;border-bottom:1px solid var(--border);font-size:13px}
+.table tr:hover{background:#fafbfc}
+
+.status-badge{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700}
+.status-new{background:#dbeafe;color:#1e40af}
+.status-contacted{background:#fef3c7;color:#92400e}
+.status-qualified{background:#e9d5ff;color:#6b21a8}
+.status-converted{background:#d1fae5;color:#065f46}
+.status-lost{background:#fee2e2;color:#991b1b}
+
+.btn{padding:6px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Cairo'}
+.btn-primary{background:var(--gold);color:var(--navy)}
+.btn-success{background:var(--green);color:#fff}
+.btn-danger{background:var(--red);color:#fff}
+
+.tab-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;color:var(--sub);background:#fff;border:1px solid var(--border)}
+.tab.active{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+
+.empty-state{text-align:center;padding:40px;color:var(--sub)}
+.empty-state i{font-size:48px;color:var(--border);margin-bottom:16px}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(100%)}
+  .main{margin-right:0;padding:16px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="/static/imgs/logo.png" alt="مساندة">
+      <div>
+        <h2>مساندة</h2>
+        <p>لوحة الإدارة <span class="admin-badge">ADMIN</span></p>
+      </div>
+    </div>
+    
+    <div class="menu-section">
+      <div class="menu-label">العمليات</div>
+      <button class="menu-item active" onclick="switchView('dashboard')">
+        <i class="fas fa-chart-line"></i> الرئيسية
+      </button>
+      <button class="menu-item" onclick="switchView('leads')">
+        <i class="fas fa-user-tag"></i> العملاء المحتملون
+        <span class="badge" id="leadsBadge" style="display:none">0</span>
+      </button>
+      <button class="menu-item" onclick="switchView('clients')">
+        <i class="fas fa-users"></i> العملاء
+      </button>
+      <button class="menu-item" onclick="switchView('projects')">
+        <i class="fas fa-folder"></i> المشاريع
+      </button>
+    </div>
+    
+    <div class="menu-section">
+      <div class="menu-label">الأدوات</div>
+      <button class="menu-item" onclick="window.location.href='/'">
+        <i class="fas fa-globe"></i> الموقع العام
+      </button>
+      <button class="menu-item" onclick="window.open('/api/docs','_blank')">
+        <i class="fas fa-code"></i> API Docs
+      </button>
+    </div>
+  </aside>
+  
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="welcomeTitle">لوحة الإدارة</h1>
+        <p>إدارة شاملة لجميع عمليات المكتب</p>
+      </div>
+      <div class="user-menu">
+        <div class="user-avatar" id="userAvatar">A</div>
+        <div>
+          <b id="userName">...</b>
+          <div style="font-size:11px;color:var(--gold);font-weight:900">ADMIN</div>
+        </div>
+        <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
+    </div>
+    
+    <div class="stats-grid" id="statsGrid"></div>
+    
+    <div id="dashboardView">
+      <div class="section">
+        <h2><i class="fas fa-tag" style="color:var(--gold)"></i> آخر العملاء المحتملين</h2>
+        <div id="recentLeads"></div>
+      </div>
+      
+      <div class="section">
+        <h2><i class="fas fa-folder" style="color:var(--gold)"></i> آخر المشاريع</h2>
+        <div id="recentProjects"></div>
+      </div>
+    </div>
+    
+    <div id="leadsView" style="display:none">
+      <div class="section">
+        <h2><i class="fas fa-user-tag" style="color:var(--gold)"></i> جميع العملاء المحتملين</h2>
+        <div class="tab-row">
+          <button class="tab active" onclick="filterLeads('all', this)">الكل</button>
+          <button class="tab" onclick="filterLeads('new', this)">جديد</button>
+          <button class="tab" onclick="filterLeads('contacted', this)">تم التواصل</button>
+          <button class="tab" onclick="filterLeads('qualified', this)">مؤهل</button>
+          <button class="tab" onclick="filterLeads('converted', this)">محوّل لعميل</button>
+        </div>
+        <div id="allLeads"></div>
+      </div>
+    </div>
+    
+    <div id="clientsView" style="display:none">
+      <div class="section">
+        <h2><i class="fas fa-users" style="color:var(--gold)"></i> جميع العملاء</h2>
+        <div id="allClients"></div>
+      </div>
+    </div>
+    
+    <div id="projectsView" style="display:none">
+      <div class="section">
+        <h2><i class="fas fa-folder" style="color:var(--gold)"></i> جميع المشاريع</h2>
+        <div id="allProjects"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const API = window.location.origin + '/api';
+const token = localStorage.getItem('musanada_token');
+const user = JSON.parse(localStorage.getItem('musanada_user') || 'null');
+
+if(!token || !user){
+  window.location.href = '/login';
+}
+if(user.role !== 'admin' && user.role !== 'staff'){
+  alert('غير مصرح لك بالدخول!');
+  window.location.href = '/portal';
+}
+
+document.getElementById('userName').textContent = user.full_name;
+document.getElementById('userAvatar').textContent = user.full_name[0];
+
+const headers = {
+  'Content-Type': 'application/json',
+  'Authorization': 'Bearer ' + token
+};
+
+async function loadDashboard(){
+  try{
+    const res = await fetch(API+'/admin/dashboard', {headers});
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.detail);
+    
+    const stats = data.stats;
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="stat-card blue">
+        <div class="icon"><i class="fas fa-users"></i></div>
+        <div class="num">${stats.total_clients}</div>
+        <div class="label">إجمالي العملاء</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="icon"><i class="fas fa-folder"></i></div>
+        <div class="num">${stats.total_projects}</div>
+        <div class="label">المشاريع</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="icon"><i class="fas fa-user-tag"></i></div>
+        <div class="num">${stats.new_leads}</div>
+        <div class="label">عملاء محتملون جدد</div>
+      </div>
+      <div class="stat-card green">
+        <div class="icon"><i class="fas fa-check-circle"></i></div>
+        <div class="num">${stats.projects_by_status.completed || 0}</div>
+        <div class="label">مشاريع مكتملة</div>
+      </div>
+    `;
+    
+    // Show leads badge
+    if(stats.new_leads > 0){
+      const badge = document.getElementById('leadsBadge');
+      badge.textContent = stats.new_leads;
+      badge.style.display = 'inline-block';
+    }
+    
+    // Recent leads
+    const leadsContainer = document.getElementById('recentLeads');
+    if(data.recent_leads.length === 0){
+      leadsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>لا توجد طلبات جديدة</p></div>';
+    } else {
+      leadsContainer.innerHTML = renderLeadsTable(data.recent_leads);
+    }
+    
+    // Recent projects
+    const projectsContainer = document.getElementById('recentProjects');
+    if(data.recent_projects.length === 0){
+      projectsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>لا توجد مشاريع بعد</p></div>';
+    } else {
+      projectsContainer.innerHTML = `<table class="table">
+        <thead><tr><th>المشروع</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+        <tbody>${data.recent_projects.map(p => `
+          <tr>
+            <td><b>${p.title}</b></td>
+            <td><span class="status-badge status-new">${p.status}</span></td>
+            <td>${new Date(p.created_at).toLocaleDateString('ar-AE')}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+    }
+  } catch(err){
+    console.error(err);
+  }
+}
+
+function renderLeadsTable(leads){
+  return `<table class="table">
+    <thead>
+      <tr>
+        <th>الاسم</th>
+        <th>الهاتف</th>
+        <th>البريد</th>
+        <th>الخدمة</th>
+        <th>الحالة</th>
+        <th>الإجراء</th>
+      </tr>
+    </thead>
+    <tbody>${leads.map(l => `
+      <tr>
+        <td><b>${l.name}</b></td>
+        <td><a href="tel:${l.phone}" style="color:var(--green)">${l.phone}</a></td>
+        <td><a href="mailto:${l.email}" style="color:var(--blue)">${l.email}</a></td>
+        <td>${l.service_interest || '-'}</td>
+        <td><span class="status-badge status-${l.status}">${getStatusLabel(l.status)}</span></td>
+        <td>
+          <a href="https://wa.me/${l.phone.replace(/[^0-9]/g,'')}" target="_blank" class="btn btn-success">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+          </a>
+        </td>
+      </tr>
+    `).join('')}</tbody>
+  </table>`;
+}
+
+function getStatusLabel(s){
+  const labels = {'new':'جديد','contacted':'تم التواصل','qualified':'مؤهل','converted':'محوّل','lost':'مفقود'};
+  return labels[s] || s;
+}
+
+async function loadLeads(status=null){
+  try{
+    const url = API+'/admin/leads' + (status && status !== 'all' ? '?status='+status : '');
+    const res = await fetch(url, {headers});
+    const data = await res.json();
+    
+    const container = document.getElementById('allLeads');
+    if(data.leads.length === 0){
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>لا توجد نتائج</p></div>';
+    } else {
+      container.innerHTML = renderLeadsTable(data.leads);
+    }
+  } catch(err){
+    console.error(err);
+  }
+}
+
+function filterLeads(status, btn){
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  loadLeads(status);
+}
+
+async function loadClients(){
+  try{
+    const res = await fetch(API+'/admin/clients', {headers});
+    const data = await res.json();
+    
+    const container = document.getElementById('allClients');
+    if(data.clients.length === 0){
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>لا يوجد عملاء بعد</p></div>';
+    } else {
+      container.innerHTML = `<table class="table">
+        <thead><tr><th>الاسم</th><th>البريد</th><th>الهاتف</th><th>الشركة</th><th>المشاريع</th><th>تاريخ التسجيل</th></tr></thead>
+        <tbody>${data.clients.map(c => `
+          <tr>
+            <td><b>${c.full_name}</b></td>
+            <td>${c.email}</td>
+            <td>${c.phone || '-'}</td>
+            <td>${c.company || '-'}</td>
+            <td><b>${c.projects_count}</b></td>
+            <td>${new Date(c.created_at).toLocaleDateString('ar-AE')}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+    }
+  } catch(err){
+    console.error(err);
+  }
+}
+
+async function loadProjects(){
+  try{
+    const res = await fetch(API+'/admin/projects', {headers});
+    const data = await res.json();
+    
+    const container = document.getElementById('allProjects');
+    if(data.projects.length === 0){
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>لا توجد مشاريع</p></div>';
+    } else {
+      container.innerHTML = `<table class="table">
+        <thead><tr><th>العنوان</th><th>الخدمة</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+        <tbody>${data.projects.map(p => `
+          <tr>
+            <td><b>${p.title}</b></td>
+            <td>${p.service_type}</td>
+            <td><span class="status-badge status-new">${p.status}</span></td>
+            <td>${new Date(p.created_at).toLocaleDateString('ar-AE')}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+    }
+  } catch(err){
+    console.error(err);
+  }
+}
+
+function switchView(view){
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+  event && event.target.closest('.menu-item') && event.target.closest('.menu-item').classList.add('active');
+  
+  ['dashboard','leads','clients','projects'].forEach(v => {
+    const el = document.getElementById(v+'View');
+    if(el) el.style.display = 'none';
+  });
+  
+  const target = document.getElementById(view+'View');
+  if(target) target.style.display = 'block';
+  
+  if(view === 'dashboard') loadDashboard();
+  else if(view === 'leads') loadLeads();
+  else if(view === 'clients') loadClients();
+  else if(view === 'projects') loadProjects();
+}
+
+function logout(){
+  if(confirm('تسجيل الخروج؟')){
+    localStorage.removeItem('musanada_token');
+    localStorage.removeItem('musanada_user');
+    window.location.href = '/login';
+  }
+}
+
+loadDashboard();
+</script>
+</body>
+</html>

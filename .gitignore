@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.env
+.env.local
+venv/
+.DS_Store
+*.log
+.vscode/
+.idea/
+musanada.db
+uploads/
+outputs/
+node_modules/

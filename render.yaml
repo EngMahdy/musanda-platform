@@ -1,0 +1,22 @@
+# Render Deployment Config
+# مُساندة 2.0
+
+services:
+  - type: web
+    name: musanda-platform
+    runtime: python
+    region: frankfurt
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: FRONTEND_DIR
+        value: /opt/render/project/src/frontend/public
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.11.0

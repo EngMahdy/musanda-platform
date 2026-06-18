@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#0c1a35">
+<meta name="description" content="مساندة للاستشارات الهندسية ودراسات الجدوى — أبوظبي">
+<title>مساندة | Musanada Engineering Consultancy</title>
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="shortcut icon" href="/static/favicon.svg">
+<script>
+// إلغاء تسجيل أي Service Workers قديمة
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(regs=>{
+    regs.forEach(r=>r.unregister())
+  })
+  // مسح الـ caches القديمة
+  if('caches' in window){
+    caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)))
+  }
+}
+</script>
+<link href="/static/fonts/cairo.css" rel="stylesheet">
+<link href="/static/fa.local.css" rel="stylesheet">
+<link href="/static/tailwind.min.css" rel="stylesheet">
+<script src="/static/chart.min.js"></script>
+<style>
+/* Loading screen */
+#app-loader{position:fixed;inset:0;z-index:99999;background:#0c1a35;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s}
+#app-loader.done{opacity:0;pointer-events:none}
+#app-loader .ld-logo{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#c9a84c,#f0c040);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;color:#0c1a35;font-family:Cairo,sans-serif;margin-bottom:20px;animation:pulse 1.5s infinite}
+#app-loader .ld-bar{width:200px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;overflow:hidden}
+#app-loader .ld-fill{height:100%;background:linear-gradient(90deg,#c9a84c,#f0c040);border-radius:2px;animation:loading 1.8s ease-in-out}
+#app-loader p{color:rgba(255,255,255,.7);font-family:Cairo,sans-serif;font-size:14px;margin-top:16px}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes loading{0%{width:0%}60%{width:80%}100%{width:100%}}
+</style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0c1a35;--navy2:#1a2e52;--navy3:#243a66;
+  --gold:#c9a84c;--gold2:#f0c040;--gold3:#fde68a;
+  --teal:#0d9488;--teal2:#0f766e;
+  --blue:#2563eb;--blue2:#1d4ed8;
+  --green:#16a34a;--green2:#166534;
+  --light:#f0f4f8;--white:#ffffff;
+  --text:#1e293b;--sub:#64748b;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Cairo',sans-serif;background:var(--light);color:var(--text);overflow-x:hidden}
+
+/* ══ NAVBAR ══ */
+#navbar{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:rgba(12,26,53,0.97);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(201,168,76,0.25);
+  transition:all .3s ease;
+}
+.nav-inner{max-width:1280px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:70px}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-logo-img{width:48px;height:48px;border-radius:50%;border:2px solid var(--gold);overflow:hidden;flex-shrink:0}
+.nav-logo-img img{width:100%;height:100%;object-fit:contain}
+.nav-logo-text .name-ar{font-size:16px;font-weight:900;color:var(--gold3);line-height:1.1}
+.nav-logo-text .name-en{font-size:10px;color:#93c5fd;font-weight:500}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-link{
+  padding:8px 16px;border-radius:8px;cursor:pointer;
+  font-size:13.5px;font-weight:700;color:rgba(255,255,255,0.7);
+  border:none;background:none;font-family:'Cairo',sans-serif;
+  transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap
+}
+.nav-link:hover{color:#fff;background:rgba(255,255,255,0.08)}
+.nav-link.active{color:var(--gold2);background:rgba(201,168,76,0.12);border-bottom:2px solid var(--gold2)}
+.nav-cta{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--navy)!important;border-radius:10px;
+  padding:9px 18px!important;font-weight:900!important;
+  box-shadow:0 4px 16px rgba(201,168,76,0.3);
+}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,0.4)!important}
+.nav-mobile-btn{display:none;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px}
+
+/* ══ PAGE SYSTEM ══ */
+.page{display:none;min-height:100vh;padding-top:70px}
+.page.active{display:block}
+
+/* ══ HERO (LANDING) ══ */
+#hero-section{
+  min-height:100vh;
+  background:linear-gradient(135deg,#060d1f 0%,#0c1a35 40%,#12244a 70%,#0a1628 100%);
+  display:flex;align-items:center;position:relative;overflow:hidden;
+}
+.hero-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.hero-particles::before{
+  content:'';position:absolute;width:600px;height:600px;
+  background:radial-gradient(circle,rgba(201,168,76,0.08) 0%,transparent 70%);
+  top:-100px;right:-100px;border-radius:50%;
+}
+.hero-particles::after{
+  content:'';position:absolute;width:400px;height:400px;
+  background:radial-gradient(circle,rgba(37,99,235,0.1) 0%,transparent 70%);
+  bottom:-80px;left:-80px;border-radius:50%;
+}
+.hero-inner{max-width:1280px;margin:0 auto;padding:60px 24px;width:100%;position:relative;z-index:2}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);
+  border-radius:50px;padding:6px 16px;margin-bottom:24px;
+}
+.hero-badge span{font-size:12px;font-weight:700;color:var(--gold2)}
+.hero-title{font-size:52px;font-weight:900;color:#fff;line-height:1.15;margin-bottom:16px}
+.hero-title .gold{color:var(--gold2)}
+.hero-sub{font-size:18px;color:#93c5fd;font-weight:500;margin-bottom:12px;line-height:1.6}
+.hero-desc{font-size:14.5px;color:rgba(255,255,255,0.6);line-height:1.8;margin-bottom:32px}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--navy);padding:14px 28px;border-radius:12px;
+  font-weight:900;font-size:14.5px;text-decoration:none;cursor:pointer;
+  border:none;font-family:'Cairo',sans-serif;
+  box-shadow:0 6px 24px rgba(201,168,76,0.35);
+  transition:all .25s;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(201,168,76,0.45)}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1.5px solid rgba(255,255,255,0.25);color:#fff;
+  padding:13px 26px;border-radius:12px;font-weight:700;font-size:14px;
+  background:rgba(255,255,255,0.06);cursor:pointer;
+  font-family:'Cairo',sans-serif;text-decoration:none;
+  transition:all .25s;
+}
+.btn-secondary:hover{border-color:var(--gold2);color:var(--gold2);background:rgba(201,168,76,0.08)}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
+.stat-card{
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
+  border-radius:14px;padding:20px 16px;text-align:center;
+  transition:all .3s;
+}
+.stat-card:hover{background:rgba(201,168,76,0.08);border-color:rgba(201,168,76,0.25)}
+.stat-num{font-size:32px;font-weight:900;color:var(--gold2);line-height:1}
+.stat-label{font-size:12px;color:rgba(255,255,255,0.55);margin-top:6px;font-weight:600}
+/* Hero Visual */
+.hero-visual{position:relative}
+.hero-logo-wrap{
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.hero-logo-ring{
+  width:280px;height:280px;border-radius:50%;
+  border:2px solid rgba(201,168,76,0.2);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  animation:spin-slow 20s linear infinite;
+}
+.hero-logo-ring::before{
+  content:'';position:absolute;width:260px;height:260px;
+  border-radius:50%;border:1px dashed rgba(201,168,76,0.15);
+}
+@keyframes spin-slow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.hero-logo-inner{
+  width:200px;height:200px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(12,26,53,0.9),rgba(26,46,82,0.9));
+  border:3px solid var(--gold);
+  overflow:hidden;display:flex;align-items:center;justify-content:center;
+  animation:spin-slow 20s linear infinite reverse;
+  box-shadow:0 0 60px rgba(201,168,76,0.3);
+}
+.hero-logo-inner img{width:80%;height:80%;object-fit:contain}
+.hero-float-cards{
+  position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none
+}
+.float-card{
+  position:absolute;background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.12);
+  border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;
+  animation:float 3s ease-in-out infinite;
+}
+.float-card:nth-child(2){animation-delay:1.5s}
+.float-card:nth-child(3){animation-delay:1s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.float-card-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.float-card-text .fc-title{font-size:12px;font-weight:800;color:#fff}
+.float-card-text .fc-sub{font-size:10px;color:rgba(255,255,255,0.5)}
+
+/* ══ SECTION COMMONS ══ */
+.section{padding:80px 24px}
+.section-inner{max-width:1280px;margin:0 auto}
+.section-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);
+  border-radius:50px;padding:5px 14px;margin-bottom:16px;
+}
+.section-tag span{font-size:12px;font-weight:700;color:var(--blue)}
+.section-title{font-size:36px;font-weight:900;color:var(--navy);line-height:1.2;margin-bottom:12px}
+.section-title .accent{color:var(--blue)}
+.section-title .gold-accent{color:var(--gold)}
+.section-sub{font-size:16px;color:var(--sub);line-height:1.7;max-width:600px}
+.section-header-center{text-align:center}
+.section-header-center .section-sub{margin:0 auto}
+
+/* ══ ABOUT PAGE ══ */
+.about-hero{
+  background:linear-gradient(135deg,#060d1f,#0c1a35,#12244a);
+  padding:80px 24px;text-align:center;
+}
+.about-hero-logo{width:140px;height:140px;border-radius:50%;border:4px solid var(--gold);overflow:hidden;margin:0 auto 24px;background:#fff;box-shadow:0 0 60px rgba(201,168,76,0.4)}
+.about-hero-logo img{width:100%;height:100%;object-fit:contain;padding:10px}
+.about-hero h1{font-size:40px;font-weight:900;color:var(--gold3);margin-bottom:8px}
+.about-hero p{font-size:16px;color:#93c5fd}
+.timeline{position:relative;padding-right:30px}
+.timeline::before{content:'';position:absolute;right:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--gold),var(--blue),var(--teal))}
+.timeline-item{position:relative;margin-bottom:32px;padding-right:24px}
+.timeline-dot{position:absolute;right:-7px;top:8px;width:16px;height:16px;border-radius:50%;background:var(--gold);border:3px solid #fff;box-shadow:0 0 0 3px rgba(201,168,76,0.3)}
+.about-card{background:#fff;border-radius:20px;padding:28px;box-shadow:0 4px 24px rgba(0,0,0,0.07);border:1px solid #e2e8f0;transition:all .3s}
+.about-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.12)}
+
+/* ══ SERVICES PAGE ══ */
+.services-hero{
+  background:linear-gradient(135deg,#0c1a35,#1a2e52);
+  padding:80px 24px;text-align:center;
+}
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+.service-card{
+  background:#fff;border-radius:20px;overflow:hidden;
+  box-shadow:0 4px 20px rgba(0,0,0,0.07);border:1px solid #e2e8f0;
+  transition:all .3s;cursor:pointer;
+}
+.service-card:hover{transform:translateY(-6px);box-shadow:0 16px 48px rgba(0,0,0,0.15)}
+.service-card-head{padding:32px 24px 24px;text-align:center}
+.service-card-icon{
+  width:72px;height:72px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;margin:0 auto 16px;
+}
+.service-card-title{font-size:17px;font-weight:900;color:var(--navy);margin-bottom:8px}
+.service-card-sub{font-size:12.5px;color:var(--sub);line-height:1.6}
+.service-card-foot{
+  padding:16px 24px;background:#f8fafc;border-top:1px solid #e2e8f0;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.service-card-foot .req-btn{
+  background:none;border:none;color:var(--blue);font-weight:800;font-size:13px;cursor:pointer;
+  display:flex;align-items:center;gap:6px;font-family:'Cairo',sans-serif;
+}
+.service-card-foot .req-btn:hover{color:var(--blue2)}
+
+/* ══ PROJECTS PAGE ══ */
+.projects-hero{
+  background:linear-gradient(135deg,#0c1a35,#0d9488);
+  padding:80px 24px;text-align:center;
+}
+.projects-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+.project-card{
+  background:#fff;border-radius:20px;overflow:hidden;
+  box-shadow:0 4px 20px rgba(0,0,0,0.07);border:1px solid #e2e8f0;
+  transition:all .3s;
+}
+.project-card:hover{transform:translateY(-6px);box-shadow:0 16px 48px rgba(0,0,0,0.15)}
+.project-card-img{height:180px;display:flex;align-items:center;justify-content:center;font-size:60px;position:relative;overflow:hidden}
+.project-card-body{padding:20px 22px}
+.project-card-tag{display:inline-block;background:#eff6ff;color:#2563eb;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;margin-bottom:10px}
+.project-card-title{font-size:16px;font-weight:900;color:var(--navy);margin-bottom:8px}
+.project-card-desc{font-size:12.5px;color:var(--sub);line-height:1.6}
+.project-kpis{display:flex;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid #f1f5f9}
+.project-kpi{flex:1;text-align:center}
+.project-kpi .kv{font-size:16px;font-weight:900;color:var(--navy)}
+.project-kpi .kl{font-size:10.5px;color:var(--sub);font-weight:600}
+
+/* ══ TOOLS PAGE ══ */
+.tools-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:32px;border-bottom:2px solid #e2e8f0;padding-bottom:16px}
+.tool-tab{
+  padding:10px 22px;border-radius:10px;cursor:pointer;
+  font-size:14px;font-weight:700;color:var(--sub);
+  border:1.5px solid transparent;background:none;font-family:'Cairo',sans-serif;
+  transition:all .2s;display:flex;align-items:center;gap:7px;
+}
+.tool-tab:hover{color:var(--navy);background:#f1f5f9}
+.tool-tab.active{color:var(--blue);background:#eff6ff;border-color:#bfdbfe}
+.tool-panel{display:none}
+.tool-panel.active{display:block}
+
+/* ══ CARDS & UI ══ */
+.card{background:#fff;border-radius:16px;box-shadow:0 3px 20px rgba(0,0,0,.07);overflow:hidden;border:1px solid #e2e8f0}
+.card-head{padding:14px 20px;font-size:15px;font-weight:800;display:flex;align-items:center;gap:10px;color:#fff}
+.card-head.navy{background:linear-gradient(135deg,var(--navy),var(--navy2))}
+.card-head.blue{background:linear-gradient(135deg,#1e3a5f,var(--blue))}
+.card-head.teal{background:linear-gradient(135deg,#0f766e,var(--teal))}
+.card-head.gold{background:linear-gradient(135deg,#78350f,var(--gold))}
+.card-head.green{background:linear-gradient(135deg,#166534,var(--green))}
+.card-body{padding:20px}
+.form-label{font-size:12px;font-weight:700;color:var(--sub);display:block;margin-bottom:6px}
+.form-input{
+  width:100%;padding:10px 14px;
+  border:2px solid #e2e8f0;border-radius:10px;
+  font-size:14px;font-family:'Cairo',sans-serif;
+  outline:none;transition:border-color .2s;background:#fff;
+}
+.form-input:focus{border-color:var(--blue)}
+.form-select{
+  width:100%;padding:10px 14px;
+  border:2px solid #e2e8f0;border-radius:10px;
+  font-size:14px;font-family:'Cairo',sans-serif;
+  outline:none;background:#fff;cursor:pointer;
+}
+.sbtn{
+  background:linear-gradient(135deg,var(--navy),var(--blue));
+  color:#fff;border:none;padding:13px 28px;border-radius:12px;
+  font-size:15px;font-weight:900;font-family:'Cairo',sans-serif;
+  cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px;
+}
+.sbtn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,.3)}
+.sbtn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}
+.kpi{background:linear-gradient(135deg,#f8fafc,#fff);border:1.5px solid #e2e8f0;border-radius:14px;padding:16px;text-align:center}
+.kpi .kv{font-size:22px;font-weight:900;color:var(--navy)}
+.kpi .kl{font-size:11px;color:var(--sub);font-weight:600;margin-top:4px}
+.data-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f1f5f9;font-size:13.5px}
+.data-row:last-child{border-bottom:none}
+.data-label{color:var(--sub);font-weight:600}
+.data-value{font-weight:800;color:var(--navy)}
+.sb-block{border-radius:12px;padding:16px 18px;border:1.5px solid transparent;margin-bottom:12px}
+.sb-blue{background:#eff6ff;border-color:#bfdbfe}
+.sb-green{background:#f0fdf4;border-color:#bbf7d0}
+.sb-yellow{background:#fffbeb;border-color:#fde68a}
+.sb-slate{background:#f8fafc;border-color:#e2e8f0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.note{border-radius:10px;padding:12px 14px;background:#eff6ff;color:#1e3a5f;font-size:13px;border-right:4px solid var(--blue);line-height:1.6}
+.hid{display:none!important}
+
+/* ══ BOQ Table ══ */
+.boq-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.boq-table th{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:9px 12px;text-align:right;font-weight:800;font-size:12px}
+.boq-table td{padding:8px 12px;border-bottom:1px solid #f1f5f9}
+.boq-table tr:hover td{background:#f8fafc}
+.boq-cat-row td{background:linear-gradient(135deg,#eff6ff,#dbeafe)!important;font-weight:800;color:var(--navy)}
+.boq-total td{background:linear-gradient(135deg,var(--navy),var(--navy2))!important;color:#fff!important;font-weight:900}
+
+/* ══ CF Table ══ */
+.cf-table{width:100%;border-collapse:collapse;font-size:11.5px;min-width:900px}
+.cf-table th{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:8px 10px;text-align:center;font-size:11px}
+.cf-table td{padding:7px 10px;border-bottom:1px solid #f1f5f9;text-align:center}
+.cf-grace td{background:#fffbeb!important;color:#92400e}
+.cf-pos td{background:#f0fdf4!important}
+.cf-neg td{background:#fef2f2!important}
+
+/* ══ MODAL ══ */
+.modal-bg{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);backdrop-filter:blur(6px)}
+.modal-box{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:min(560px,96vw);max-height:92vh;overflow-y:auto;
+  background:#fff;border-radius:20px;box-shadow:0 20px 80px rgba(0,0,0,.4)
+}
+.modal-head{
+  background:linear-gradient(135deg,var(--navy),var(--navy2),var(--gold));
+  padding:20px 22px;border-radius:20px 20px 0 0;position:sticky;top:0;z-index:2
+}
+.req-btn-item{
+  width:100%;background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;
+  padding:14px 16px;cursor:pointer;font-family:'Cairo',sans-serif;transition:all .2s;text-align:right
+}
+.req-btn-item:hover{border-color:var(--blue);background:#eff6ff;transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.12)}
+
+/* ══ FOOTER ══ */
+footer{background:linear-gradient(135deg,#060d1f,#0c1a35);color:rgba(255,255,255,0.7);padding:60px 24px 30px}
+.footer-inner{max-width:1280px;margin:0 auto}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.footer-logo-name{font-size:20px;font-weight:900;color:var(--gold3);margin-bottom:6px}
+.footer-logo-en{font-size:11px;color:#93c5fd}
+.footer-desc{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;margin-top:14px}
+.footer-heading{font-size:13px;font-weight:800;color:#fff;margin-bottom:14px}
+.footer-link{font-size:12.5px;color:rgba(255,255,255,0.5);cursor:pointer;margin-bottom:8px;display:block;transition:color .2s}
+.footer-link:hover{color:var(--gold2)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.08);padding-top:24px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:rgba(255,255,255,0.35)}
+.social-links{display:flex;gap:10px}
+.social-btn{
+  width:36px;height:36px;border-radius:8px;
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,0.5);font-size:15px;cursor:pointer;transition:all .2s;
+}
+.social-btn:hover{background:rgba(201,168,76,0.2);border-color:rgba(201,168,76,0.4);color:var(--gold2)}
+
+/* ══ WHATSAPP FLOAT ══ */
+.wa-float{
+  position:fixed;bottom:24px;left:24px;z-index:900;
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,#25d366,#128c7e);
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;color:#fff;box-shadow:0 6px 24px rgba(37,211,102,0.5);
+  cursor:pointer;transition:all .3s;text-decoration:none;
+}
+.wa-float:hover{transform:scale(1.1) translateY(-2px);box-shadow:0 10px 32px rgba(37,211,102,0.6)}
+.wa-float::before{
+  content:'';position:absolute;width:100%;height:100%;border-radius:50%;
+  background:rgba(37,211,102,0.3);animation:wa-ping 2s infinite;
+}
+@keyframes wa-ping{0%{transform:scale(1);opacity:1}100%{transform:scale(1.8);opacity:0}}
+
+/* ══ ANIMATIONS ══ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.fade-up{animation:fadeUp .6s ease forwards}
+.fade-in{animation:fadeIn .5s ease}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:1024px){
+  .services-grid,.projects-grid{grid-template-columns:repeat(2,1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .hero-grid{grid-template-columns:1fr;gap:40px}
+  .hero-visual{display:none}
+  .hero-title{font-size:38px}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .nav-links{display:none;position:absolute;top:70px;left:0;right:0;background:rgba(12,26,53,0.98);padding:16px;flex-direction:column;gap:4px}
+  .nav-links.open{display:flex}
+  .nav-mobile-btn{display:block}
+  .services-grid,.projects-grid{grid-template-columns:1fr}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .hero-stats{grid-template-columns:1fr 1fr}
+  .hero-title{font-size:30px}
+  .section-title{font-size:26px}
+  .hero-btns{flex-direction:column}
+  .tools-nav{gap:6px}
+  .tool-tab{font-size:12px;padding:8px 14px}
+}
+@media print{
+  #navbar,.wa-float,footer,#reqModal{display:none!important}
+  .page{display:block!important;padding-top:0!important}
+  #page-tools{display:block!important}
+}
+</style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="app-loader">
+  <div class="ld-logo">م</div>
+  <div class="ld-bar"><div class="ld-fill"></div></div>
+  <p>مساندة للاستشارات الهندسية</p>
+</div>
+
+<!-- ══════════════════ NAVBAR ══════════════════ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a class="nav-logo" onclick="goPage('home')" href="#">
+      <div class="nav-logo-img">
+        <img src="/static/imgs/logo.png" alt="مساندة" onerror="this.parentElement.innerHTML='<i class=&quot;fas fa-building&quot; style=&quot;color:#c9a84c;font-size:22px;display:flex;align-items:center;justify-content:center;width:100%;height:100%&quot;></i>'">
+      </div>
+      <div class="nav-logo-text">
+        <div class="name-ar">مساندة</div>
+        <div class="name-en">Musanada Engineering</div>
+      </div>
+    </a>
+
+    <div class="nav-links" id="navLinks">
+      <button class="nav-link active" onclick="goPage('home')"><i class="fas fa-home"></i>الرئيسية</button>
+      <button class="nav-link" onclick="goPage('about')"><i class="fas fa-building"></i>عن المكتب</button>
+      <button class="nav-link" onclick="goPage('services')"><i class="fas fa-cogs"></i>خدماتنا</button>
+      <button class="nav-link" onclick="goPage('projects')"><i class="fas fa-project-diagram"></i>مشاريعنا</button>
+      <button class="nav-link" onclick="goPage('tools')"><i class="fas fa-calculator"></i>الأدوات</button>
+      <button class="nav-link nav-cta" onclick="openReqModal()"><i class="fas fa-paper-plane"></i>تقديم طلب</button>
+    </div>
+    <button class="nav-mobile-btn" onclick="toggleNav()" id="mobileBtn"><i class="fas fa-bars"></i></button>
+  </div>
+</nav>
+
+<!-- ══════════════════ PAGE: HOME ══════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <section id="hero-section">
+    <div class="hero-particles"></div>
+    <div class="hero-inner">
+      <div class="hero-grid">
+        <!-- Left: Text -->
+        <div>
+          <div class="hero-badge fade-up">
+            <i class="fas fa-star" style="color:var(--gold2);font-size:12px"></i>
+            <span>مكتب معتمد في أبوظبي منذ 2015</span>
+          </div>
+          <h1 class="hero-title fade-up">
+            شريكك الأمين في<br>
+            <span class="gold">الاستشارات الهندسية</span><br>
+            والتراخيص
+          </h1>
+          <p class="hero-sub fade-up">مساندة للاستشارات الهندسية ودراسات الجدوى</p>
+          <p class="hero-desc fade-up">
+            نقدم خدمات متكاملة في تراخيص المشاريع، تصنيف الشركات، دراسات الجدوى الاقتصادية، وجميع المعاملات الحكومية في أبوظبي والإمارات.
+          </p>
+          <div class="hero-btns">
+            <button class="btn-primary" onclick="openReqModal()"><i class="fas fa-paper-plane"></i>ابدأ معنا الآن</button>
+            <button class="btn-secondary" onclick="goPage('services')"><i class="fas fa-list"></i>استعرض خدماتنا</button>
+          </div>
+
+          <!-- Stats -->
+          <div class="hero-stats fade-up" style="animation-delay:.3s">
+            <div class="stat-card">
+              <div class="stat-num">+10</div>
+              <div class="stat-label">سنوات خبرة</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num">+500</div>
+              <div class="stat-label">مشروع منجز</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num">9</div>
+              <div class="stat-label">خدمات متخصصة</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Visual -->
+        <div class="hero-visual">
+          <div class="hero-logo-wrap">
+            <div class="hero-logo-ring">
+              <div class="hero-logo-inner">
+                <img src="/static/imgs/logo.png" alt="مساندة">
+              </div>
+            </div>
+            <!-- Float Cards -->
+            <div class="hero-float-cards">
+              <div class="float-card" style="top:10%;right:-40px">
+                <div class="float-card-icon" style="background:rgba(201,168,76,0.2)"><i class="fas fa-certificate" style="color:var(--gold2)"></i></div>
+                <div class="float-card-text"><div class="fc-title">رخصة CN-6295947</div><div class="fc-sub">سارية حتى 2027</div></div>
+              </div>
+              <div class="float-card" style="bottom:15%;left:-30px">
+                <div class="float-card-icon" style="background:rgba(37,99,235,0.2)"><i class="fas fa-trophy" style="color:#60a5fa"></i></div>
+                <div class="float-card-text"><div class="fc-title">معتمد ADIO</div><div class="fc-sub">أبوظبي للاستثمار</div></div>
+              </div>
+              <div class="float-card" style="top:65%;right:-50px">
+                <div class="float-card-icon" style="background:rgba(13,148,136,0.2)"><i class="fas fa-check-double" style="color:#34d399"></i></div>
+                <div class="float-card-text"><div class="fc-title">جميع الجهات</div><div class="fc-sub">موانئ • بلدية • ADIO</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES PREVIEW -->
+  <section class="section" style="background:#fff">
+    <div class="section-inner">
+      <div class="section-header-center" style="margin-bottom:48px">
+        <div class="section-tag"><i class="fas fa-cogs" style="color:var(--blue);font-size:11px"></i><span>خدماتنا</span></div>
+        <h2 class="section-title">كل ما تحتاجه في <span class="accent">مكان واحد</span></h2>
+        <p class="section-sub">من الترخيص إلى التصنيف، من دراسة الجدوى إلى تخصيص الأراضي — مساندة تغطي كل متطلباتك</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px" id="homeServGrid">
+        <!-- Filled by JS -->
+      </div>
+      <div style="text-align:center;margin-top:32px">
+        <button class="btn-primary" onclick="goPage('services')" style="margin:0 auto"><i class="fas fa-arrow-left"></i>عرض جميع الخدمات</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY US -->
+  <section class="section" style="background:var(--light)">
+    <div class="section-inner">
+      <div class="section-header-center" style="margin-bottom:48px">
+        <div class="section-tag"><i class="fas fa-star" style="color:var(--gold);font-size:11px"></i><span>لماذا مساندة؟</span></div>
+        <h2 class="section-title">ما يميزنا عن <span class="gold-accent">الجميع</span></h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px">
+        <div class="about-card" style="text-align:center;padding:28px 20px">
+          <div style="width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,#eff6ff,#dbeafe);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px;color:var(--blue)"><i class="fas fa-bolt"></i></div>
+          <h3 style="font-size:16px;font-weight:900;color:var(--navy);margin-bottom:8px">سرعة الإنجاز</h3>
+          <p style="font-size:12.5px;color:var(--sub);line-height:1.6">أسرع إنجاز مع ضمان الجودة والدقة في كل معاملة</p>
+        </div>
+        <div class="about-card" style="text-align:center;padding:28px 20px">
+          <div style="width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px;color:var(--green)"><i class="fas fa-handshake"></i></div>
+          <h3 style="font-size:16px;font-weight:900;color:var(--navy);margin-bottom:8px">شبكة علاقات</h3>
+          <p style="font-size:12.5px;color:var(--sub);line-height:1.6">علاقات راسخة مع جميع الجهات الحكومية في أبوظبي</p>
+        </div>
+        <div class="about-card" style="text-align:center;padding:28px 20px">
+          <div style="width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,#fffbeb,#fef3c7);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px;color:#d97706"><i class="fas fa-award"></i></div>
+          <h3 style="font-size:16px;font-weight:900;color:var(--navy);margin-bottom:8px">خبرة 10+ سنوات</h3>
+          <p style="font-size:12.5px;color:var(--sub);line-height:1.6">تجربة واسعة في السوق الإماراتي والأنظمة الحكومية</p>
+        </div>
+        <div class="about-card" style="text-align:center;padding:28px 20px">
+          <div style="width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,#faf5ff,#ede9fe);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px;color:#7c3aed"><i class="fas fa-headset"></i></div>
+          <h3 style="font-size:16px;font-weight:900;color:var(--navy);margin-bottom:8px">دعم مستمر</h3>
+          <p style="font-size:12.5px;color:var(--sub);line-height:1.6">متابعة كاملة حتى الحصول على النتيجة النهائية</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <section style="padding:60px 24px;background:linear-gradient(135deg,#060d1f,#0c1a35,#12244a)">
+    <div class="section-inner" style="text-align:center">
+      <h2 style="font-size:32px;font-weight:900;color:#fff;margin-bottom:12px">جاهز تبدأ مشروعك؟</h2>
+      <p style="font-size:15px;color:#93c5fd;margin-bottom:28px">تواصل معنا الآن وسيرد عليك فريق مساندة خلال أقل من 24 ساعة</p>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+        <button class="btn-primary" onclick="openReqModal()"><i class="fas fa-paper-plane"></i>تقديم طلب الآن</button>
+        <a href="https://wa.me/971569664664" target="_blank" class="btn-secondary" style="text-decoration:none"><i class="fab fa-whatsapp" style="color:#25d366"></i>واتساب مباشر</a>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /page-home -->
+
+<!-- ══════════════════ PAGE: ABOUT ══════════════════ -->
+<div class="page" id="page-about">
+
+  <div class="about-hero">
+    <div class="about-hero-logo">
+      <img src="/static/imgs/logo.png" alt="مساندة">
+    </div>
+    <h1>مساندة للاستشارات الهندسية</h1>
+    <p>Musanada Engineering Consultancy & Feasibility Studies — أبوظبي، الإمارات</p>
+  </div>
+
+  <div class="section" style="background:#fff">
+    <div class="section-inner">
+      <div class="g2" style="gap:40px;align-items:start">
+
+        <!-- Info Column -->
+        <div>
+          <div class="section-tag" style="margin-bottom:20px"><i class="fas fa-user-tie" style="color:var(--blue);font-size:11px"></i><span>المدير والمؤسس</span></div>
+          <div class="about-card" style="margin-bottom:20px">
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+              <div style="width:80px;height:80px;border-radius:50%;overflow:hidden;border:3px solid var(--gold);flex-shrink:0">
+                <img src="/static/imgs/card.jpg" alt="م. محمود" style="width:100%;height:100%;object-fit:cover">
+              </div>
+              <div>
+                <div style="font-size:18px;font-weight:900;color:var(--navy)">م. محمود مهدي أبوشعيشع</div>
+                <div style="font-size:13px;color:var(--teal);font-weight:700;margin-top:4px">Eng. Mahmoud Mahdy Abushaishe</div>
+                <div style="font-size:12px;color:var(--sub);margin-top:3px">مدير المكتب — استشاري هندسي معتمد</div>
+              </div>
+            </div>
+            <p style="font-size:13.5px;color:var(--sub);line-height:1.8">
+              مهندس معماري واستشاري متخصص في أبوظبي، يمتلك خبرة تزيد على 10 سنوات في مجال الاستشارات الهندسية، دراسات الجدوى، وإنجاز المعاملات الحكومية مع جميع الجهات الرسمية في إمارة أبوظبي والإمارات العربية المتحدة.
+            </p>
+          </div>
+
+          <!-- Contact Card -->
+          <div class="about-card" style="margin-bottom:20px">
+            <div style="font-size:14px;font-weight:800;color:var(--navy);margin-bottom:16px"><i class="fas fa-address-book ml-2" style="color:var(--teal)"></i>معلومات التواصل</div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:36px;height:36px;border-radius:8px;background:#f0fdf4;display:flex;align-items:center;justify-content:center"><i class="fas fa-phone" style="color:var(--green)"></i></div>
+                <div>
+                  <div style="font-size:10px;color:var(--sub)">الهواتف</div>
+                  <div style="font-size:13.5px;font-weight:800;direction:ltr">+971 56 966 4664 | +971 52 514 2224 | +971 55 557 6258</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:36px;height:36px;border-radius:8px;background:#eff6ff;display:flex;align-items:center;justify-content:center"><i class="fas fa-envelope" style="color:var(--blue)"></i></div>
+                <div>
+                  <div style="font-size:10px;color:var(--sub)">البريد الإلكتروني</div>
+                  <div style="font-size:13px;font-weight:700;direction:ltr">mahmoud@mahdy.ae | info@musanda.ae</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:36px;height:36px;border-radius:8px;background:#fffbeb;display:flex;align-items:center;justify-content:center"><i class="fas fa-globe" style="color:#d97706"></i></div>
+                <div>
+                  <div style="font-size:10px;color:var(--sub)">الموقع الإلكتروني</div>
+                  <div style="font-size:13px;font-weight:700;direction:ltr">www.musanda.ae</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:36px;height:36px;border-radius:8px;background:#faf5ff;display:flex;align-items:center;justify-content:center"><i class="fas fa-map-marker-alt" style="color:#7c3aed"></i></div>
+                <div>
+                  <div style="font-size:10px;color:var(--sub)">الموقع</div>
+                  <div style="font-size:13px;font-weight:700">خليفة سيتي — أبوظبي، الإمارات العربية المتحدة</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Licence -->
+          <div class="about-card" style="border:2px solid rgba(201,168,76,0.3);background:linear-gradient(135deg,#fffbeb,#fff)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+              <div style="font-size:14px;font-weight:800;color:var(--navy)"><i class="fas fa-certificate ml-2" style="color:var(--gold)"></i>الرخصة الرسمية</div>
+              <a href="/static/imgs/licence.pdf" target="_blank" style="background:linear-gradient(135deg,var(--navy),var(--gold));color:#fff;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:6px"><i class="fas fa-download"></i>PDF</a>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px">
+                <div style="font-size:10px;color:#92400e;font-weight:700">رقم الرخصة</div>
+                <div style="font-size:14px;font-weight:900;color:var(--navy);direction:ltr">CN-6295947</div>
+              </div>
+              <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px">
+                <div style="font-size:10px;color:var(--green2);font-weight:700">صالحة حتى</div>
+                <div style="font-size:14px;font-weight:900;color:var(--green2)">17/02/2027</div>
+              </div>
+            </div>
+            <div style="margin-top:12px;background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:10px;padding:12px 14px">
+              <div style="font-size:11px;font-weight:800;color:var(--gold3);margin-bottom:8px">الأنشطة المرخصة</div>
+              <div style="font-size:12px;color:#93c5fd;display:flex;flex-direction:column;gap:4px">
+                <div><i class="fas fa-check-circle ml-1" style="color:var(--gold2)"></i>استشارات الهندسة المعمارية (7110202)</div>
+                <div><i class="fas fa-check-circle ml-1" style="color:var(--gold2)"></i>استشارات هندسية في دراسات الجدوى (7110908)</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;font-size:11px;color:var(--sub);text-align:center">
+              <i class="fas fa-shield-alt ml-1" style="color:var(--green)"></i>
+              صادرة عن دائرة التنمية الاقتصادية — أبوظبي (ADRA) | ADCCI: 8800138057
+            </div>
+          </div>
+        </div>
+
+        <!-- Services Infographic + Story -->
+        <div>
+          <div class="section-tag" style="margin-bottom:20px"><i class="fas fa-sitemap" style="color:var(--teal);font-size:11px"></i><span>قصتنا وخدماتنا</span></div>
+
+          <div class="about-card" style="margin-bottom:20px">
+            <img src="/static/imgs/infographic1.jpg" alt="خدمات مساندة" style="width:100%;border-radius:12px;display:block">
+            <div style="padding:14px 0 0;font-size:13px;color:var(--sub);text-align:center">خريطة خدمات مكتب مساندة الشاملة</div>
+          </div>
+
+          <div class="about-card" style="margin-bottom:20px">
+            <div style="font-size:14px;font-weight:800;color:var(--navy);margin-bottom:12px"><i class="fas fa-layer-group ml-2" style="color:var(--blue)"></i>درجات التصنيف التي نعمل بها</div>
+            <img src="/static/imgs/infographic2.jpg" alt="تصنيف الشركات" style="width:100%;border-radius:12px;display:block">
+          </div>
+
+          <!-- Authorities -->
+          <div class="about-card" style="background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff">
+            <div style="font-size:14px;font-weight:800;color:var(--gold3);margin-bottom:14px"><i class="fas fa-landmark ml-2"></i>معتمدون لدى الجهات الرسمية</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div style="background:rgba(255,255,255,0.07);border-radius:8px;padding:10px 12px;font-size:12px;color:#93c5fd"><i class="fas fa-anchor ml-1" style="color:var(--gold2)"></i>موانئ أبوظبي</div>
+              <div style="background:rgba(255,255,255,0.07);border-radius:8px;padding:10px 12px;font-size:12px;color:#93c5fd"><i class="fas fa-trophy ml-1" style="color:var(--gold2)"></i>ADIO أبوظبي للاستثمار</div>
+              <div style="background:rgba(255,255,255,0.07);border-radius:8px;padding:10px 12px;font-size:12px;color:#93c5fd"><i class="fas fa-city ml-1" style="color:var(--gold2)"></i>دائرة البلديات والنقل</div>
+              <div style="background:rgba(255,255,255,0.07);border-radius:8px;padding:10px 12px;font-size:12px;color:#93c5fd"><i class="fas fa-hard-hat ml-1" style="color:var(--gold2)"></i>دائرة التنمية الاقتصادية</div>
+              <div style="background:rgba(255,255,255,0.07);border-radius:8px;padding:10px 12px;font-size:12px;color:#93c5fd"><i class="fas fa-users ml-1" style="color:var(--gold2)"></i>وزارة الموارد البشرية</div>
+              <div style="background:rgba(255,255,255,0.07);border-radius:8px;padding:10px 12px;font-size:12px;color:#93c5fd"><i class="fas fa-building ml-1" style="color:var(--gold2)"></i>غرفة تجارة أبوظبي</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</div><!-- /page-about -->
+
+<!-- ══════════════════ PAGE: SERVICES ══════════════════ -->
+<div class="page" id="page-services">
+
+  <div class="services-hero">
+    <div class="section-tag" style="margin-bottom:16px;justify-content:center"><i class="fas fa-cogs" style="color:var(--gold2);font-size:11px"></i><span style="color:var(--gold2)">خدماتنا التسع</span></div>
+    <h1 style="font-size:38px;font-weight:900;color:#fff;margin-bottom:10px">حلول متكاملة لأعمالك</h1>
+    <p style="font-size:15px;color:#93c5fd;max-width:600px;margin:0 auto;line-height:1.7">نغطي جميع احتياجاتك من التراخيص والتصنيفات والمعاملات الحكومية في أبوظبي والإمارات</p>
+  </div>
+
+  <div class="section">
+    <div class="section-inner">
+      <div class="services-grid" id="allServGrid"><!-- Filled by JS --></div>
+    </div>
+  </div>
+
+</div><!-- /page-services -->
+
+<!-- ══════════════════ PAGE: PROJECTS ══════════════════ -->
+<div class="page" id="page-projects">
+
+  <div class="projects-hero">
+    <div class="section-tag" style="margin-bottom:16px;justify-content:center"><i class="fas fa-project-diagram" style="color:var(--gold2);font-size:11px"></i><span style="color:var(--gold2)">أعمالنا ومشاريعنا</span></div>
+    <h1 style="font-size:38px;font-weight:900;color:#fff;margin-bottom:10px">مشاريع نفخر بها</h1>
+    <p style="font-size:15px;color:#a7f3d0;max-width:600px;margin:0 auto;line-height:1.7">نماذج من مشاريع أنجزناها لعملائنا في أبوظبي والإمارات</p>
+  </div>
+
+  <div class="section">
+    <div class="section-inner">
+      <!-- Filter Tabs -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:32px">
+        <button class="tool-tab active" onclick="filterProj('all',this)">الكل</button>
+        <button class="tool-tab" onclick="filterProj('license',this)"><i class="fas fa-file-alt"></i>تراخيص</button>
+        <button class="tool-tab" onclick="filterProj('class',this)"><i class="fas fa-id-card"></i>تصنيف</button>
+        <button class="tool-tab" onclick="filterProj('invest',this)"><i class="fas fa-chart-line"></i>استثمار</button>
+        <button class="tool-tab" onclick="filterProj('govt',this)"><i class="fas fa-landmark"></i>حكومي</button>
+      </div>
+      <div class="projects-grid" id="projGrid"><!-- Filled by JS --></div>
+    </div>
+  </div>
+
+</div><!-- /page-projects -->
+
+<!-- ══════════════════ PAGE: TOOLS ══════════════════ -->
+<div class="page" id="page-tools">
+
+  <div style="background:linear-gradient(135deg,var(--navy),var(--navy2));padding:50px 24px 32px;text-align:center">
+    <div class="section-tag" style="margin-bottom:16px;justify-content:center"><i class="fas fa-calculator" style="color:var(--gold2);font-size:11px"></i><span style="color:var(--gold2)">الأدوات الهندسية</span></div>
+    <h1 style="font-size:34px;font-weight:900;color:#fff;margin-bottom:8px">حاسبات مساندة الذكية</h1>
+    <p style="font-size:14px;color:#93c5fd">أدوات احترافية لحساب تكاليف البناء ودراسة الجدوى الاقتصادية</p>
+  </div>
+
+  <div class="section">
+    <div class="section-inner">
+      <!-- Tabs -->
+      <div class="tools-nav">
+        <button class="tool-tab active" onclick="switchTool('boq',this)"><i class="fas fa-file-invoice-dollar"></i>حاسبة BOQ</button>
+        <button class="tool-tab" onclick="switchTool('feas',this)"><i class="fas fa-chart-line"></i>دراسة الجدوى</button>
+        <button class="tool-tab" onclick="switchTool('guide',this)"><i class="fas fa-book-open"></i>دليل الاستخدام</button>
+      </div>
+
+      <!-- BOQ Tool -->
+      <div class="tool-panel active" id="tool-boq">
+        <div class="card">
+          <div class="card-head blue"><i class="fas fa-calculator"></i>حاسبة تكلفة البناء — جدول الكميات BOQ<span style="font-size:11px;font-weight:400;opacity:.7;margin-right:auto">Bill of Quantities</span></div>
+          <div class="card-body">
+            <p class="note" style="margin-bottom:20px"><i class="fas fa-info-circle ml-1"></i>أدخل مساحة المبنى وتكلفة المتر المربع للحصول على جدول كميات تفصيلي بالنسب المعيارية.</p>
+            <form onsubmit="doBOQ(event)">
+              <div class="g2" style="gap:16px;margin-bottom:16px">
+                <div>
+                  <label class="form-label"><i class="fas fa-ruler-combined ml-1" style="color:var(--blue)"></i>إجمالي مساحة البناء GFA (م²) *</label>
+                  <input class="form-input" id="b_a" type="number" min="50" max="999999" step="1" required placeholder="مثال: 1000">
+                </div>
+                <div>
+                  <label class="form-label"><i class="fas fa-coins ml-1" style="color:var(--gold)"></i>تكلفة البناء للمتر (درهم) *</label>
+                  <input class="form-input" id="b_c" type="number" min="500" max="50000" step="50" required placeholder="مثال: 2500">
+                </div>
+                <div>
+                  <label class="form-label"><i class="fas fa-building ml-1" style="color:var(--teal)"></i>نوع المشروع</label>
+                  <select class="form-select" id="b_t">
+                    <option value="residential">سكني — Residential</option>
+                    <option value="commercial">تجاري — Commercial</option>
+                    <option value="industrial">صناعي — Industrial</option>
+                    <option value="mixed_commercial_residential">مختلط تجاري سكني</option>
+                    <option value="mixed_commercial_industrial">مختلط تجاري صناعي</option>
+                    <option value="hospitality">فندقي / ضيافة</option>
+                    <option value="healthcare">صحي / مستشفى</option>
+                    <option value="education">تعليمي</option>
+                    <option value="logistics">لوجستي / مستودعات</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label"><i class="fas fa-industry ml-1" style="color:#7c3aed"></i>نوع الإنشاء / الهيكل</label>
+                  <select class="form-select" id="b_s">
+                    <option value="concrete">خرسانة مسلحة تقليدية</option>
+                    <option value="steel">هيكل استيل</option>
+                    <option value="prestressed">خرسانة سابقة الإجهاد</option>
+                    <option value="load_bearing">حوائط حاملة</option>
+                    <option value="timber">خشب / Wood Frame</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label"><i class="fas fa-layer-group ml-1" style="color:var(--blue)"></i>عدد الأدوار</label>
+                  <input class="form-input" id="b_f" type="number" min="1" max="200" step="1" value="1">
+                </div>
+              </div>
+              <button type="submit" class="sbtn"><i class="fas fa-calculator"></i>احسب جدول الكميات</button>
+            </form>
+          </div>
+        </div>
+        <div id="boqOut" class="hid" style="margin-top:20px"></div>
+      </div>
+
+      <!-- Feasibility Tool -->
+      <div class="tool-panel" id="tool-feas">
+        <div class="card">
+          <div class="card-head teal"><i class="fas fa-chart-line"></i>دراسة الجدوى الاقتصادية — نموذج متكامل</div>
+          <div class="card-body">
+            <div class="g2" style="gap:16px;margin-bottom:20px">
+              <div>
+                <label class="form-label">مساحة المبنى (م²)</label>
+                <input class="form-input" id="f_a" type="number" min="10" placeholder="مثال: 700">
+              </div>
+              <div>
+                <label class="form-label">مساحة الأرض (م²)</label>
+                <input class="form-input" id="f_la" type="number" min="0" placeholder="اختياري">
+              </div>
+              <div>
+                <label class="form-label">تكلفة البناء الكلية (درهم)</label>
+                <input class="form-input" id="f_tc" type="number" min="0" placeholder="مثال: 5000000">
+              </div>
+              <div>
+                <label class="form-label">نوع المشروع</label>
+                <select class="form-select" id="f_pt">
+                  <option value="residential">سكني</option>
+                  <option value="commercial">تجاري</option>
+                  <option value="industrial">صناعي</option>
+                  <option value="mixed_commercial_residential">مختلط تجاري سكني</option>
+                  <option value="hospitality">فندقي / ضيافة</option>
+                  <option value="healthcare">صحي / مستشفى</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">إيجار المتر السنوي (درهم/م²)</label>
+                <input class="form-input" id="f_r" type="number" min="0" placeholder="مثال: 900">
+              </div>
+              <div>
+                <label class="form-label">النسبة القابلة للإيجار (%)</label>
+                <input class="form-input" id="f_rp" type="number" min="0" max="100" value="80">
+              </div>
+              <div>
+                <label class="form-label">نسبة الإشغال المتوقعة (%)</label>
+                <input class="form-input" id="f_oc" type="number" min="0" max="100" value="90">
+              </div>
+              <div>
+                <label class="form-label">الزيادة السنوية للإيجار (%)</label>
+                <input class="form-input" id="f_ri" type="number" min="0" max="50" value="5">
+              </div>
+              <div>
+                <label class="form-label">سنوات الدراسة</label>
+                <input class="form-input" id="f_y" type="number" min="1" max="50" value="15">
+              </div>
+              <div>
+                <label class="form-label">سنوات البناء (Grace)</label>
+                <input class="form-input" id="f_gr" type="number" min="0" max="10" value="1" oninput="updateGraceNote()">
+                <div id="graceNote" class="note" style="margin-top:8px;font-size:12px"></div>
+              </div>
+              <div>
+                <label class="form-label">معدل الخصم / الفرصة البديلة (%)</label>
+                <input class="form-input" id="f_dr" type="number" min="0" max="50" step="0.5" value="8">
+              </div>
+              <div>
+                <label class="form-label">نسبة الشواغر (%)</label>
+                <input class="form-input" id="f_vr" type="number" min="0" max="50" value="5">
+              </div>
+            </div>
+
+            <!-- OPEX -->
+            <div class="sb-block sb-slate" style="margin-bottom:16px">
+              <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:12px"><i class="fas fa-money-bill-wave ml-2" style="color:#dc2626"></i>مصروفات التشغيل OPEX (%)</div>
+              <div class="g4" style="gap:10px">
+                <div><label class="form-label">إدارة وتشغيل</label><input class="form-input" id="f_mg" type="number" min="0" max="30" step="0.5" value="5" oninput="updOpexPrev()"></div>
+                <div><label class="form-label">صيانة</label><input class="form-input" id="f_mt" type="number" min="0" max="20" step="0.5" value="3" oninput="updOpexPrev()"></div>
+                <div><label class="form-label">تأمين (من المبنى)</label><input class="form-input" id="f_ins" type="number" min="0" max="5" step="0.1" value="0.5" oninput="updOpexPrev()"></div>
+                <div><label class="form-label">مرافق مشتركة</label><input class="form-input" id="f_ut" type="number" min="0" max="20" step="0.5" value="2" oninput="updOpexPrev()"></div>
+              </div>
+              <div id="opexPrev" style="margin-top:10px;font-size:12px;color:var(--sub);display:none"></div>
+            </div>
+
+            <!-- Land -->
+            <div class="sb-block sb-blue" style="margin-bottom:16px">
+              <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:12px"><i class="fas fa-map ml-2" style="color:var(--blue)"></i>نوع الأرض</div>
+              <select class="form-select" id="f_lt" onchange="onLT()" style="margin-bottom:12px">
+                <option value="owned">ملك — Owned</option>
+                <option value="musataha">مساطحة — Musataha</option>
+                <option value="free">مجاني / حكومي</option>
+              </select>
+              <div id="ownedB">
+                <label class="form-label">تكلفة الأرض (درهم)</label>
+                <input class="form-input" id="f_lc" type="number" min="0" value="0">
+              </div>
+              <div id="musB" class="hid">
+                <div class="g2" style="gap:10px">
+                  <div><label class="form-label">الإيجار السنوي الأساسي (درهم)</label><input class="form-input" id="f_mb" type="number" min="0" value="0" oninput="updMusPrev()"></div>
+                  <div><label class="form-label">نسبة الزيادة الدورية (%)</label><input class="form-input" id="f_me" type="number" min="0" max="30" value="0" oninput="updMusPrev()"></div>
+                  <div><label class="form-label">كل كم سنة تزيد</label><input class="form-input" id="f_mey" type="number" min="1" max="20" value="5" oninput="updMusPrev()"></div>
+                  <div><label class="form-label">Revenue Share (%)</label><input class="form-input" id="f_mr" type="number" min="0" max="30" value="0" oninput="updMusPrev()"></div>
+                </div>
+                <div id="musPrev" class="note hid" style="margin-top:10px;font-size:12px"></div>
+              </div>
+            </div>
+
+            <!-- Financing -->
+            <div class="sb-block sb-green" style="margin-bottom:16px">
+              <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:12px"><i class="fas fa-university ml-2" style="color:var(--green)"></i>التمويل البنكي (اختياري)</div>
+              <div class="g2" style="gap:10px">
+                <div><label class="form-label">قيمة القرض (درهم)</label><input class="form-input" id="f_ln" type="number" min="0" value="0"></div>
+                <div><label class="form-label">الفائدة السنوية (%)</label><input class="form-input" id="f_li" type="number" min="0" max="30" step="0.1" value="0"></div>
+                <div><label class="form-label">مدة القرض (سنوات)</label><input class="form-input" id="f_ly" type="number" min="0" max="40" value="0"></div>
+              </div>
+            </div>
+
+            <!-- Exit -->
+            <div class="sb-block sb-yellow" style="margin-bottom:20px">
+              <div style="font-size:13px;font-weight:800;color:#92400e;margin-bottom:12px"><i class="fas fa-sign-out-alt ml-2"></i>استراتيجية الخروج (اختياري)</div>
+              <div class="g2" style="gap:10px">
+                <div><label class="form-label">سعر البيع المتوقع (درهم)</label><input class="form-input" id="f_sp" type="number" min="0" value="0"></div>
+                <div><label class="form-label">سنة الخروج</label><input class="form-input" id="f_ey" type="number" min="0" max="50" value="0"></div>
+              </div>
+            </div>
+
+            <button class="sbtn" onclick="doFeas(event)"><i class="fas fa-chart-line"></i>احسب دراسة الجدوى</button>
+          </div>
+        </div>
+        <div id="feasOut" class="hid" style="margin-top:20px"></div>
+      </div>
+
+      <!-- Guide Tool -->
+      <div class="tool-panel" id="tool-guide">
+        <div class="card">
+          <div class="card-head gold"><i class="fas fa-book-open"></i>دليل استخدام الأدوات</div>
+          <div class="card-body">
+            <div class="g2" style="gap:20px">
+              <div>
+                <h3 style="font-size:16px;font-weight:900;color:var(--navy);margin-bottom:14px"><i class="fas fa-file-invoice-dollar ml-2" style="color:var(--blue)"></i>حاسبة BOQ</h3>
+                <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--sub)">
+                  <div class="sb-block sb-blue"><strong>الخطوة 1:</strong> أدخل المساحة الكلية GFA بالمتر المربع</div>
+                  <div class="sb-block sb-blue"><strong>الخطوة 2:</strong> حدد تكلفة البناء للمتر (من 800 إلى 5000 درهم عادةً)</div>
+                  <div class="sb-block sb-blue"><strong>الخطوة 3:</strong> اختر نوع المشروع ونوع الإنشاء</div>
+                  <div class="sb-block sb-green"><strong>النتيجة:</strong> جدول كميات تفصيلي بجميع البنود ونسبها من التكلفة الكلية</div>
+                </div>
+                <div class="note" style="margin-top:16px">
+                  <strong>ملاحظة:</strong> النسب المستخدمة مبنية على معايير البناء في الإمارات ومتوسطات السوق. قد تختلف الأسعار الفعلية حسب الموقع والمواصفات.
+                </div>
+              </div>
+              <div>
+                <h3 style="font-size:16px;font-weight:900;color:var(--navy);margin-bottom:14px"><i class="fas fa-chart-line ml-2" style="color:var(--teal)"></i>دراسة الجدوى</h3>
+                <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--sub)">
+                  <div class="sb-block sb-green"><strong>المدخلات الأساسية:</strong> المساحة، التكلفة، الإيجار السنوي</div>
+                  <div class="sb-block sb-green"><strong>معاملات الدراسة:</strong> سنوات البناء، معدل الخصم، الشواغر</div>
+                  <div class="sb-block sb-green"><strong>OPEX:</strong> نسب الإدارة والصيانة والتأمين والمرافق</div>
+                  <div class="sb-block sb-green"><strong>النتائج:</strong> NPV، IRR، فترة الاسترداد، Cap Rate، COC</div>
+                </div>
+                <div class="sb-block sb-yellow" style="margin-top:16px">
+                  <strong>المؤشرات الرئيسية:</strong>
+                  <ul style="margin-top:8px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:#92400e">
+                    <li>• <strong>NPV موجب</strong> = المشروع يضيف قيمة</li>
+                    <li>• <strong>IRR &gt; معدل الخصم</strong> = جدوى اقتصادية</li>
+                    <li>• <strong>Cap Rate 6-9%</strong> = نطاق مقبول أبوظبي</li>
+                    <li>• <strong>فترة استرداد &lt; 10 سنوات</strong> = ممتاز</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /page-tools -->
+
+<!-- ══════════════════ FOOTER ══════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <div style="width:50px;height:50px;border-radius:50%;border:2px solid var(--gold);overflow:hidden">
+            <img src="/static/imgs/logo.png" alt="مساندة" style="width:100%;height:100%;object-fit:contain">
+          </div>
+          <div>
+            <div class="footer-logo-name">مساندة</div>
+            <div class="footer-logo-en">Musanada Engineering Consultancy</div>
+          </div>
+        </div>
+        <p class="footer-desc">مكتب متخصص في الاستشارات الهندسية، دراسات الجدوى، وإنجاز جميع المعاملات الحكومية في أبوظبي والإمارات العربية المتحدة.</p>
+        <div class="social-links" style="margin-top:16px">
+          <a href="https://wa.me/971569664664" target="_blank" class="social-btn"><i class="fab fa-whatsapp"></i></a>
+          <div class="social-btn"><i class="fab fa-instagram"></i></div>
+          <div class="social-btn"><i class="fab fa-linkedin-in"></i></div>
+          <div class="social-btn"><i class="fas fa-envelope"></i></div>
+        </div>
+      </div>
+      <div>
+        <div class="footer-heading">روابط سريعة</div>
+        <span class="footer-link" onclick="goPage('home')">الرئيسية</span>
+        <span class="footer-link" onclick="goPage('about')">عن المكتب</span>
+        <span class="footer-link" onclick="goPage('services')">خدماتنا</span>
+        <span class="footer-link" onclick="goPage('projects')">مشاريعنا</span>
+        <span class="footer-link" onclick="goPage('tools')">الأدوات</span>
+      </div>
+      <div>
+        <div class="footer-heading">خدماتنا</div>
+        <span class="footer-link" onclick="openReqModal()">تراخيص المشاريع</span>
+        <span class="footer-link" onclick="openReqModal()">تصنيف الشركات</span>
+        <span class="footer-link" onclick="openReqModal()">موانئ أبوظبي</span>
+        <span class="footer-link" onclick="openReqModal()">ADIO — المزايدات</span>
+        <span class="footer-link" onclick="openReqModal()">دراسات الجدوى</span>
+      </div>
+      <div>
+        <div class="footer-heading">تواصل معنا</div>
+        <div class="footer-link" style="direction:ltr">+971 56 966 4664</div>
+        <div class="footer-link" style="direction:ltr">+971 52 514 2224</div>
+        <div class="footer-link" style="direction:ltr">mahmoud@mahdy.ae</div>
+        <div class="footer-link" style="direction:ltr">www.musanda.ae</div>
+        <a href="https://wa.me/971569664664" target="_blank" style="margin-top:12px;display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none">
+          <i class="fab fa-whatsapp"></i>واتساب الآن
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 مساندة للاستشارات الهندسية — جميع الحقوق محفوظة</div>
+      <div>رخصة CN-6295947 | صادرة عن ADRA أبوظبي</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════ WHATSAPP FLOAT ══════════════════ -->
+<a href="https://wa.me/971569664664" target="_blank" class="wa-float" title="تواصل عبر واتساب">
+  <i class="fab fa-whatsapp"></i>
+</a>
+
+<!-- ══════════════════ REQUEST MODAL ══════════════════ -->
+<div class="modal-bg" id="reqModal" onclick="closeReqModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:18px;font-weight:900;color:var(--gold3)">تقديم طلب خدمة</div>
+          <div style="font-size:12px;color:#93c5fd;margin-top:2px">Request a Service — مساندة للاستشارات الهندسية</div>
+        </div>
+        <button onclick="closeReqModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+      </div>
+    </div>
+
+    <!-- Step 1 -->
+    <div id="reqStep1" style="padding:20px 22px">
+      <div style="font-size:13px;font-weight:800;color:#374151;margin-bottom:14px"><i class="fas fa-list-ul" style="color:var(--blue)" class="ml-2"></i> اختر نوع الخدمة</div>
+      <div style="display:flex;flex-direction:column;gap:10px" id="servList"><!-- Filled by JS --></div>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="reqStep2" style="display:none;padding:20px 22px">
+      <button onclick="backToServices()" style="background:none;border:none;color:var(--blue);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:16px;font-family:Cairo,sans-serif"><i class="fas fa-arrow-right"></i>رجوع</button>
+      <div id="selServiceName" style="background:linear-gradient(135deg,var(--navy),var(--navy2));color:var(--gold3);border-radius:10px;padding:12px 16px;font-weight:800;font-size:14px;margin-bottom:18px"></div>
+      <form id="reqForm" onsubmit="submitReq(event)">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <label class="form-label"><i class="fas fa-user" style="color:var(--blue)"></i> اسم صاحب الطلب *</label>
+            <input id="req_name" type="text" required placeholder="مثال: محمد علي" class="form-input">
+          </div>
+          <div>
+            <label class="form-label"><i class="fas fa-phone" style="color:var(--green)"></i> رقم التواصل (WhatsApp) *</label>
+            <input id="req_phone" type="tel" required placeholder="05XXXXXXXX" class="form-input" style="direction:ltr">
+          </div>
+          <div>
+            <label class="form-label"><i class="fas fa-envelope" style="color:var(--gold)"></i> البريد الإلكتروني (اختياري)</label>
+            <input id="req_email" type="email" placeholder="example@email.com" class="form-input" style="direction:ltr">
+          </div>
+          <div id="subTypeBlock" style="display:none">
+            <label class="form-label"><i class="fas fa-list" style="color:#7c3aed"></i> نوع المشروع</label>
+            <select id="req_subtype" class="form-select"></select>
+          </div>
+          <div>
+            <label class="form-label"><i class="fas fa-comment-alt" style="color:#60a5fa"></i> تفاصيل إضافية (اختياري)</label>
+            <textarea id="req_notes" rows="3" placeholder="أي معلومات تساعدنا..." class="form-input" style="resize:vertical"></textarea>
+          </div>
+          <button type="submit" class="sbtn" style="width:100%;justify-content:center;background:linear-gradient(135deg,var(--navy),var(--gold))"><i class="fas fa-paper-plane"></i>إرسال عبر WhatsApp</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Step 3 -->
+    <div id="reqStep3" style="display:none;padding:30px 22px;text-align:center">
+      <div style="width:70px;height:70px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><i class="fas fa-check" style="font-size:30px;color:var(--green)"></i></div>
+      <div style="font-size:18px;font-weight:900;color:var(--navy);margin-bottom:8px">تم إرسال طلبك!</div>
+      <div style="font-size:13px;color:var(--sub);margin-bottom:20px">سيتواصل معك فريق مساندة خلال أقل من 24 ساعة</div>
+      <button onclick="closeReqModal()" class="sbtn" style="margin:0 auto">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/axios.min.js"></script>
+<script>
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
+const SERVICES = {
+  1:{name:'🏗️ الاستشارات الهندسية — تراخيص المشاريع',en:'Engineering Consultancy — Project Licenses',icon:'fa-building',color:'#1e3a5f,#2563eb',subtypes:['تجاري — Commercial','سكني — Residential','سكن عمال — Labour Accommodation','صناعي — Industrial','ترفيهي — Entertainment'],wa:'مرحباً، أود الاستفسار عن *تراخيص المشاريع الهندسية*',desc:'تراخيص كاملة للمشاريع التجارية والسكنية والصناعية'},
+  2:{name:'🏭 ترخيص الشركات والمصانع',en:'Companies & Factories Licensing',icon:'fa-industry',color:'#7c3aed,#6d28d9',subtypes:[],wa:'مرحباً، أود الاستفسار عن *ترخيص شركة أو مصنع*',desc:'استخراج وتجديد تراخيص الشركات والمنشآت الصناعية'},
+  3:{name:'👷 تصنيف شركات المقاولات',en:'Contracting Companies Classification',icon:'fa-hard-hat',color:'#0d9488,#0f766e',subtypes:['الدرجة الخاصة — Special Grade','الدرجة الأولى — 1st Grade','الدرجة الثانية — 2nd Grade','الدرجة الثالثة — 3rd Grade','الدرجة الرابعة — 4th Grade'],wa:'مرحباً، أود الاستفسار عن *تصنيف شركات المقاولات*',desc:'تصنيف مقاولي الإنشاء من الدرجة الرابعة حتى الدرجة الخاصة'},
+  4:{name:'📐 تصنيف مكاتب الاستشارات',en:'Engineering Consultancy Classification',icon:'fa-drafting-compass',color:'#1d4ed8,#3b82f6',subtypes:['الدرجة الخاصة — Special Grade','الدرجة الأولى — 1st Grade','الدرجة الثانية — 2nd Grade'],wa:'مرحباً، أود الاستفسار عن *تصنيف مكاتب الاستشارات الهندسية*',desc:'تصنيف مكاتب الاستشارات الهندسية بجميع درجاتها'},
+  5:{name:'👨‍👩‍👧 وزارة العمل — السكنات والكوتة',en:'Ministry of Labour — Accommodation & Quota',icon:'fa-users',color:'#b45309,#d97706',subtypes:['لوك السكنات — Labour Accommodation','الكوتة العمالية — Labour Quota','عقود العمل — Labour Contracts'],wa:'مرحباً، أود الاستفسار عن *خدمات وزارة العمل*',desc:'لوك السكنات، الكوتة العمالية، عقود العمال والأكواد'},
+  6:{name:'🏷️ تسجيل الأسماء التجارية',en:'Trade Names Registration',icon:'fa-tag',color:'#0d9488,#0f766e',subtypes:[],wa:'مرحباً، أود الاستفسار عن *تسجيل الأسماء التجارية*',desc:'تسجيل واعتماد الأسماء التجارية لدى الجهات المختصة'},
+  7:{name:'⚓ موانئ أبوظبي — تخصيص الأراضي',en:'Abu Dhabi Ports — Land Allocation',icon:'fa-anchor',color:'#1e3a5f,#0369a1',subtypes:[],wa:'مرحباً، أود الاستفسار عن *تخصيص أراضي موانئ أبوظبي*',desc:'إجراءات تخصيص الأراضي في منطقة موانئ أبوظبي'},
+  8:{name:'🏙️ دائرة البلديات والنقل — تخصيص أراضي',en:'DMT — Municipal Land Allocation',icon:'fa-map-marked-alt',color:'#166534,#16a34a',subtypes:[],wa:'مرحباً، أود الاستفسار عن *تخصيص أراضي البلدية والنقل*',desc:'طلبات تخصيص الأراضي البلدية والتصاريح الإنشائية'},
+  9:{name:'🏆 ADIO أبوظبي للاستثمار — المزايدات',en:'Abu Dhabi Investment Office — Tenders',icon:'fa-trophy',color:'#78350f,#c9a84c',subtypes:[],wa:'مرحباً، أود الاستفسار عن *مزايدات ADIO أبوظبي للاستثمار*',desc:'التسجيل والدخول في مزايدات مكتب أبوظبي للاستثمار ADIO'},
+}
+
+const PROJECTS = [
+  {id:1,cat:'license',emoji:'🏗️',bg:'#eff6ff',title:'مشروع Food Truck Park',loc:'خليفة سيتي — أبوظبي',tag:'ترخيص مشروع',desc:'إعداد ملف المناقصة الكامل لمشروع حديقة عربات الطعام لدى مكتب أبوظبي للاستثمار ADIO.',area:'700 م²',cost:'5.4 مليون درهم',years:'2026'},
+  {id:2,cat:'class',emoji:'👷',bg:'#f0fdf4',title:'تصنيف شركة مقاولات — الدرجة الخاصة',loc:'أبوظبي',tag:'تصنيف مقاولات',desc:'إنجاز ملف التصنيف الخاص لإحدى كبرى شركات المقاولات في أبوظبي.',area:'—',cost:'—',years:'2025'},
+  {id:3,cat:'invest',emoji:'📊',bg:'#faf5ff',title:'دراسة جدوى — مجمع تجاري سكني',loc:'المدينة المنورة — السعودية',tag:'دراسة جدوى',desc:'دراسة جدوى اقتصادية كاملة لمجمع تجاري سكني متعدد الأدوار مع تحليل التدفقات النقدية.',area:'4200 م²',cost:'28 مليون درهم',years:'2025'},
+  {id:4,cat:'govt',emoji:'⚓',bg:'#fffbeb',title:'تخصيص أرض — منطقة الموانئ',loc:'موانئ أبوظبي',tag:'موانئ أبوظبي',desc:'إنجاز جميع إجراءات تخصيص الأرض الصناعية في منطقة موانئ أبوظبي لعميل خليجي.',area:'2000 م²',cost:'—',years:'2024'},
+  {id:5,cat:'license',emoji:'🏭',bg:'#f0fdf4',title:'ترخيص مصنع — منطقة صناعية',loc:'الإمارات',tag:'ترخيص مصنع',desc:'استخراج جميع تراخيص تأسيس وتشغيل مصنع في المنطقة الصناعية مع التنسيق مع جميع الجهات.',area:'1500 م²',cost:'—',years:'2024'},
+  {id:6,cat:'invest',emoji:'🏨',bg:'#eff6ff',title:'دراسة جدوى — فندق 3 نجوم',loc:'أبوظبي',tag:'دراسة جدوى',desc:'تقييم مالي واقتصادي لمشروع فندقي سياحي شامل مؤشرات NPV وIRR وفترة الاسترداد.',area:'3200 م²',cost:'18 مليون درهم',years:'2024'},
+]
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+let currentPage = 'home'
+
+function goPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'))
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'))
+  document.getElementById('page-'+id).classList.add('active')
+  const btns = document.querySelectorAll('.nav-link')
+  const labels = {home:0,about:1,services:2,projects:3,tools:4}
+  if(labels[id]!==undefined) btns[labels[id]].classList.add('active')
+  window.scrollTo({top:0,behavior:'smooth'})
+  document.getElementById('navLinks').classList.remove('open')
+  currentPage = id
+  // تشغيل الـ init لصفحة الأدوات عند فتحها لأول مرة
+  if(id==='tools'){
+    setTimeout(()=>{updateGraceNote();updOpexPrev()},50)
+  }
+}
+
+function toggleNav(){
+  document.getElementById('navLinks').classList.toggle('open')
+}
+
+// ══════════════════════════════════════════
+// BUILD SERVICES GRIDS
+// ══════════════════════════════════════════
+function buildServicesGrid(containerId, limit){
+  const c = document.getElementById(containerId)
+  const ids = limit ? [1,2,3,4,5,6].slice(0,limit) : Object.keys(SERVICES).map(Number)
+  c.innerHTML = ids.map(id=>{
+    const s = SERVICES[id]
+    return `<div class="service-card" onclick="openReqWithService(${id})">
+      <div class="service-card-head">
+        <div class="service-card-icon" style="background:linear-gradient(135deg,${s.color})">
+          <i class="fas ${s.icon}" style="color:#fff"></i>
+        </div>
+        <div class="service-card-title">${s.name.replace(/^[^ ]+ /,'')}</div>
+        <div class="service-card-sub">${s.desc}</div>
+        ${s.subtypes.length>0 ? '<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px">'+s.subtypes.slice(0,3).map(st=>'<span style="font-size:10px;background:#f1f5f9;border-radius:4px;padding:2px 7px;color:#64748b">'+st.split(' — ')[0]+'</span>').join('')+(s.subtypes.length>3?'<span style="font-size:10px;color:#94a3b8">+'+( s.subtypes.length-3)+'</span>':'')+'</div>' : ''}
+      </div>
+      <div class="service-card-foot">
+        <span style="font-size:12px;color:#94a3b8">${s.en}</span>
+        <button class="req-btn" onclick="event.stopPropagation();openReqWithService(${id})"><i class="fas fa-paper-plane"></i>تقديم طلب</button>
+      </div>
+    </div>`
+  }).join('')
+}
+
+function buildServList(){
+  const c = document.getElementById('servList')
+  c.innerHTML = Object.entries(SERVICES).map(([id,s])=>`
+    <button class="req-btn-item" onclick="selectService(${id})">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,${s.color});display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="fas ${s.icon}" style="color:#fde68a;font-size:16px"></i>
+        </div>
+        <div style="flex:1">
+          <div style="font-weight:800;font-size:13.5px;color:#1e3a5f">${s.name.replace(/^[^ ]+ /,'')}</div>
+          <div style="font-size:11.5px;color:#6b7280;margin-top:3px">${s.en}</div>
+        </div>
+        <i class="fas fa-chevron-left" style="color:#94a3b8;margin-top:12px"></i>
+      </div>
+    </button>`).join('')
+}
+
+// ══════════════════════════════════════════
+// BUILD PROJECTS GRID
+// ══════════════════════════════════════════
+function buildProjectsGrid(filter='all'){
+  const c = document.getElementById('projGrid')
+  const filtered = filter==='all' ? PROJECTS : PROJECTS.filter(p=>p.cat===filter)
+  c.innerHTML = filtered.map(p=>`
+    <div class="project-card">
+      <div class="project-card-img" style="background:${p.bg}">${p.emoji}</div>
+      <div class="project-card-body">
+        <div class="project-card-tag">${p.tag}</div>
+        <div class="project-card-title">${p.title}</div>
+        <div style="font-size:11.5px;color:#94a3b8;margin-bottom:8px"><i class="fas fa-map-marker-alt ml-1"></i>${p.loc}</div>
+        <div class="project-card-desc">${p.desc}</div>
+        <div class="project-kpis">
+          <div class="project-kpi"><div class="kv">${p.area}</div><div class="kl">المساحة</div></div>
+          <div class="project-kpi"><div class="kv">${p.cost}</div><div class="kl">التكلفة</div></div>
+          <div class="project-kpi"><div class="kv">${p.years}</div><div class="kl">السنة</div></div>
+        </div>
+      </div>
+    </div>`).join('')
+}
+
+function filterProj(cat, btn){
+  document.querySelectorAll('.tool-tab').forEach(t=>t.classList.remove('active'))
+  btn.classList.add('active')
+  buildProjectsGrid(cat)
+}
+
+// ══════════════════════════════════════════
+// MODAL & SERVICES
+// ══════════════════════════════════════════
+let selectedServiceId = 0
+
+function openReqModal(){
+  document.getElementById('reqModal').style.display='block'
+  document.body.style.overflow='hidden'
+  showStep(1)
+}
+
+function openReqWithService(id){
+  openReqModal()
+  setTimeout(()=>selectService(id), 50)
+}
+
+function closeReqModal(e){
+  if(e && e.target!==document.getElementById('reqModal')) return
+  document.getElementById('reqModal').style.display='none'
+  document.body.style.overflow=''
+  document.getElementById('reqForm').reset()
+  showStep(1)
+}
+
+function showStep(n){
+  document.getElementById('reqStep1').style.display = n===1?'block':'none'
+  document.getElementById('reqStep2').style.display = n===2?'block':'none'
+  document.getElementById('reqStep3').style.display = n===3?'block':'none'
+}
+
+function selectService(id){
+  selectedServiceId = id
+  const s = SERVICES[id]
+  document.getElementById('selServiceName').innerHTML =
+    '<i class="fas fa-check-circle ml-2" style="color:var(--gold3)"></i>' + s.name
+  const stBlock = document.getElementById('subTypeBlock')
+  const stSel = document.getElementById('req_subtype')
+  if(s.subtypes.length > 0){
+    stBlock.style.display = 'block'
+    stSel.innerHTML = s.subtypes.map(st=>`<option>${st}</option>`).join('')
+  } else {
+    stBlock.style.display = 'none'
+  }
+  showStep(2)
+}
+
+function backToServices(){ showStep(1) }
+
+function submitReq(e){
+  e.preventDefault()
+  const name  = document.getElementById('req_name').value.trim()
+  const phone = document.getElementById('req_phone').value.trim()
+  const email = document.getElementById('req_email').value.trim()
+  const notes = document.getElementById('req_notes').value.trim()
+  const s = SERVICES[selectedServiceId]
+  const subTypeEl = document.getElementById('req_subtype')
+  const subType = subTypeEl && document.getElementById('subTypeBlock').style.display!=='none' ? subTypeEl.value : ''
+  let msg = s.wa + '\n\n'
+  msg += '👤 *الاسم:* ' + name + '\n'
+  msg += '📱 *التواصل:* ' + phone + '\n'
+  if(email) msg += '📧 *البريد:* ' + email + '\n'
+  if(subType) msg += '📋 *التفاصيل:* ' + subType + '\n'
+  if(notes) msg += '📝 *ملاحظات:* ' + notes + '\n'
+  msg += '\n_تم الإرسال من موقع مساندة_'
+  const url = 'https://wa.me/971569664664?text=' + encodeURIComponent(msg)
+  window.open(url, '_blank')
+  showStep(3)
+}
+
+// ══════════════════════════════════════════
+// TOOLS
+// ══════════════════════════════════════════
+function switchTool(id, btn){
+  document.querySelectorAll('.tool-tab').forEach(t=>t.classList.remove('active'))
+  document.querySelectorAll('.tool-panel').forEach(p=>p.classList.remove('active'))
+  btn.classList.add('active')
+  document.getElementById('tool-'+id).classList.add('active')
+}
+
+// Feasibility helpers
+function updateGraceNote(){
+  const grEl=document.getElementById('f_gr')
+  const note=document.getElementById('graceNote')
+  if(!grEl||!note) return
+  const g=+grEl.value||0
+  if(g===0){
+    note.innerHTML='<i class="fas fa-check-circle" style="color:var(--green)"></i> لا يوجد وقت بناء — المشروع يبدأ من السنة الأولى.'
+  } else {
+    note.innerHTML='<i class="fas fa-hard-hat" style="color:#d97706"></i> <strong>'+g+' سنة/سنوات بناء:</strong> لا إيرادات خلالها.'
+  }
+}
+
+function onLT(){
+  const t=document.getElementById('f_lt').value
+  document.getElementById('ownedB').classList.toggle('hid',t!=='owned')
+  document.getElementById('musB').classList.toggle('hid',t!=='musataha')
+  if(t==='musataha') updMusPrev()
+}
+
+function updMusPrev(){
+  const base=+document.getElementById('f_mb').value||0
+  const esc=+document.getElementById('f_me').value||0
+  const ey=+document.getElementById('f_mey').value||5
+  const rev=+document.getElementById('f_mr').value||0
+  const yrs=+document.getElementById('f_y').value||15
+  const prev=document.getElementById('musPrev')
+  if(base<=0){prev.classList.add('hid');return}
+  prev.classList.remove('hid')
+  let rows=[]
+  let lastV=-1
+  for(let y=1;y<=Math.min(yrs,30);y++){
+    const c=Math.floor((y-1)/ey)
+    const v=base*Math.pow(1+esc/100,c)
+    if(v!==lastV||(y===1)||(y===yrs)){
+      const revPart=rev>0?' + '+rev+'% إيرادات':''
+      rows.push('س'+y+': <strong>'+n(v)+'</strong>'+revPart)
+      lastV=v
+    }
+  }
+  prev.innerHTML='<strong>معاينة إيجار الأرض:</strong> '+rows.join(' | ')
+}
+
+function updOpexPrev(){
+  const mgEl=document.getElementById('f_mg')
+  const p=document.getElementById('opexPrev')
+  if(!mgEl||!p) return
+  const mg=+mgEl.value||0
+  const mt=+(document.getElementById('f_mt')?.value||0)
+  const ins=+(document.getElementById('f_ins')?.value||0)
+  const ut=+(document.getElementById('f_ut')?.value||0)
+  const total=mg+mt+ut
+  p.style.display='block'
+  p.innerHTML='<strong>إجمالي OPEX المتغير:</strong> '+total.toFixed(1)+'% من الدخل + '+ins+'% تأمين من قيمة المبنى'
+}
+
+// ══════════════════════════════════════════
+// BOQ
+// ══════════════════════════════════════════
+let ST={}
+async function doBOQ(e){
+  if(e && e.preventDefault) e.preventDefault()
+  const btn = (e && e.target && e.target.querySelector) 
+    ? e.target.querySelector('button[type=submit]') 
+    : document.querySelector('#tool-boq button[type=submit]')
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> جاري الحساب...'}
+  try{
+    const r=await axios.post('/api/calculate',{
+      area:+document.getElementById('b_a').value,
+      costPerMeter:+document.getElementById('b_c').value,
+      floors:+document.getElementById('b_f').value,
+      structureType:document.getElementById('b_s').value,
+      projectType:document.getElementById('b_t').value,
+    })
+    ST.boq=r.data; renderBOQ(r.data)
+  }catch(err){alert('خطأ في الحساب: '+err.message)}
+  finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-calculator"></i>احسب جدول الكميات'}}
+}
+
+function renderBOQ(d){
+  let h=`
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-head navy"><i class="fas fa-chart-pie"></i>نظرة عامة على المشروع</div>
+    <div class="card-body">
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kv">${n(d.area)} م²</div><div class="kl">مساحة GFA</div></div>
+        <div class="kpi"><div class="kv">${n(d.nla)} م²</div><div class="kl">NLA صافي</div></div>
+        <div class="kpi"><div class="kv">${n(d.costPerMeter)}</div><div class="kl">درهم/م²</div></div>
+        <div class="kpi"><div class="kv" style="color:#dc2626;font-size:18px">${d.fmtTotal} د.إ</div><div class="kl">إجمالي التكلفة</div></div>
+      </div>
+      <div class="g2" style="gap:12px;margin-top:12px">
+        <div class="data-row"><span class="data-label">نوع المشروع</span><span class="data-value">${d.projectTypeAr}</span></div>
+        <div class="data-row"><span class="data-label">نوع الإنشاء</span><span class="data-value">${d.structureTypeAr}</span></div>
+        <div class="data-row"><span class="data-label">المساحة المشتركة</span><span class="data-value">${d.commonAreaPct}% = ${n(d.commonArea)} م²</span></div>
+        <div class="data-row"><span class="data-label">إجمالي النسب</span><span class="data-value">${d.totalPct}%</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head blue"><i class="fas fa-table"></i>جدول الكميات التفصيلي — BOQ<button onclick="window.print()" style="margin-right:auto;background:rgba(255,255,255,.15);border:none;color:#fff;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:Cairo,sans-serif"><i class="fas fa-print ml-1"></i>طباعة</button></div>
+    <div style="overflow-x:auto">
+      <table class="boq-table">
+        <thead><tr>
+          <th style="width:60px">الكود</th>
+          <th>البند</th>
+          <th>Item (EN)</th>
+          <th style="width:70px">النسبة</th>
+          <th style="width:130px">التكلفة (درهم)</th>
+          <th>ملاحظة</th>
+        </tr></thead>
+        <tbody>`
+  d.boqCategories.forEach(cat=>{
+    h+=`<tr class="boq-cat-row">
+      <td>${cat.id}</td>
+      <td colspan="2"><i class="fas ${cat.icon} ml-2" style="color:var(--blue)"></i>${cat.ar}</td>
+      <td><strong>${cat.pct}%</strong></td>
+      <td><strong>${cat.formatted}</strong></td>
+      <td style="font-size:11px;color:var(--sub)">${cat.en}</td>
+    </tr>`
+    cat.items.forEach(it=>{
+      h+=`<tr>
+        <td style="color:var(--sub);font-size:11px">${it.id}</td>
+        <td>${it.ar}</td>
+        <td style="font-size:11.5px;color:var(--sub)">${it.en}</td>
+        <td>${it.pct}%</td>
+        <td>${it.formatted}</td>
+        <td style="font-size:11px;color:var(--sub)">${it.note}</td>
+      </tr>`
+    })
+  })
+  h+=`<tr class="boq-total">
+    <td colspan="3" style="text-align:center"><strong>الإجمالي الكلي للمشروع</strong></td>
+    <td><strong>${d.totalPct}%</strong></td>
+    <td><strong>${d.fmtTotal} درهم</strong></td>
+    <td></td>
+  </tr></tbody></table>
+    </div>
+  </div>`
+  const el=document.getElementById('boqOut')
+  el.innerHTML=h;el.classList.remove('hid')
+  el.scrollIntoView({behavior:'smooth',block:'start'})
+}
+
+// ══════════════════════════════════════════
+// FEASIBILITY
+// ══════════════════════════════════════════
+async function doFeas(e){
+  if(e && e.preventDefault) e.preventDefault()
+  const btn = document.querySelector('#tool-feas button[type=submit]') || document.querySelector('#tool-feas .sbtn')
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> جاري التحليل...'}
+  try{
+    const r=await axios.post('/api/feasibility',{
+      buildingArea:+document.getElementById('f_a').value,
+      landArea:+document.getElementById('f_la').value,
+      totalCost:+document.getElementById('f_tc').value,
+      projectType:document.getElementById('f_pt').value,
+      studyYears:+document.getElementById('f_y').value,
+      graceYears:+document.getElementById('f_gr').value,
+      rentablePct:+document.getElementById('f_rp').value,
+      annualRentPerSqm:+document.getElementById('f_r').value,
+      occupancyRate:+document.getElementById('f_oc').value,
+      annualRentIncrease:+document.getElementById('f_ri').value,
+      vacancyRate:+document.getElementById('f_vr').value,
+      discountRate:+document.getElementById('f_dr').value,
+      mgmtPct:+document.getElementById('f_mg').value,
+      maintPct:+document.getElementById('f_mt').value,
+      insurancePct:+document.getElementById('f_ins').value,
+      utilsPct:+document.getElementById('f_ut').value,
+      landType:document.getElementById('f_lt').value,
+      landCost:+document.getElementById('f_lc').value,
+      musatahaAnnualBase:+document.getElementById('f_mb').value,
+      musatahaEscalation:+document.getElementById('f_me').value,
+      musatahaEscalYears:+document.getElementById('f_mey').value,
+      musatahaRevShare:+document.getElementById('f_mr').value,
+      loanAmount:+document.getElementById('f_ln').value,
+      loanInterest:+document.getElementById('f_li').value,
+      loanYears:+document.getElementById('f_ly').value,
+      salePrice:+document.getElementById('f_sp').value,
+      exitYear:+document.getElementById('f_ey').value,
+    })
+    ST.feas=r.data; renderFeas(r.data)
+  }catch(err){alert('خطأ: '+err.message)}
+  finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-chart-line"></i>احسب دراسة الجدوى'}}
+}
+
+function renderFeas(d){
+  const irrTxt = !d.irrFound ? 'لا يوجد' : d.irr < -100 ? 'سالب' : d.irr.toFixed(1)+'%'
+  const payTxt = d.paybackYear > d.studyYears ? 'أطول من فترة الدراسة' : 'السنة '+d.paybackYear
+  let h = `
+  <div class="card mb-4" style="margin-bottom:16px">
+    <div class="card-head teal"><i class="fas fa-chart-bar"></i>المؤشرات المالية الرئيسية<button onclick="window.print()" style="margin-right:auto;background:rgba(255,255,255,.15);border:none;color:#fff;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:Cairo,sans-serif"><i class="fas fa-print ml-1"></i>طباعة</button></div>
+    <div class="card-body">
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kv" style="color:${d.npv>=0?'#16a34a':'#dc2626'}">${d.fmtNPV} د.إ</div><div class="kl">صافي القيمة الحالية NPV</div></div>
+        <div class="kpi"><div class="kv" style="color:${d.irrFound&&d.irr>d.discountRate?'#16a34a':'#dc2626'}">${irrTxt}</div><div class="kl">معدل العائد الداخلي IRR</div></div>
+        <div class="kpi"><div class="kv">${payTxt}</div><div class="kl">فترة الاسترداد</div></div>
+        <div class="kpi"><div class="kv">${d.roi.toFixed(1)}%</div><div class="kl">متوسط ROI سنوي</div></div>
+        <div class="kpi"><div class="kv">${d.capRate.toFixed(1)}%</div><div class="kl">Cap Rate السنة 1</div></div>
+        <div class="kpi"><div class="kv">${d.coc.toFixed(1)}%</div><div class="kl">Cash on Cash</div></div>
+        <div class="kpi"><div class="kv">${d.fmtTotalNOI} د.إ</div><div class="kl">إجمالي NOI التشغيلي</div></div>
+        <div class="kpi"><div class="kv">${d.fmtTotalInvestment} د.إ</div><div class="kl">إجمالي الاستثمار</div></div>
+      </div>
+      <div class="g2" style="gap:12px;margin-top:12px">
+        <div>
+          <div class="data-row"><span class="data-label">GFA</span><span class="data-value">${n(d.gfa)} م²</span></div>
+          <div class="data-row"><span class="data-label">NLA</span><span class="data-value">${n(d.nla)} م²</span></div>
+          <div class="data-row"><span class="data-label">المساحة القابلة للإيجار</span><span class="data-value">${n(d.rentableArea)} م²</span></div>
+          <div class="data-row"><span class="data-label">تكلفة البناء</span><span class="data-value">${d.fmtBuildingCost} د.إ</span></div>
+          <div class="data-row"><span class="data-label">رأس المال الخاص</span><span class="data-value">${d.fmtEquityInvestment} د.إ</span></div>
+        </div>
+        <div>
+          <div class="data-row"><span class="data-label">GRM</span><span class="data-value">${d.grm.toFixed(1)} سنة</span></div>
+          <div class="data-row"><span class="data-label">DCR</span><span class="data-value">${d.loanAmount>0?d.dcr.toFixed(2):'—'}</span></div>
+          <div class="data-row"><span class="data-label">Break-Even Occupancy</span><span class="data-value">${d.breakEvenOcc.toFixed(1)}%</span></div>
+          <div class="data-row"><span class="data-label">إجمالي OPEX</span><span class="data-value">${d.fmtTotalOpex} د.إ</span></div>
+          <div class="data-row"><span class="data-label">متوسط NOI سنوي</span><span class="data-value">${n(d.avgNOI)} د.إ</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-head navy"><i class="fas fa-chart-line"></i>مخططات التدفقات النقدية</div>
+    <div class="card-body">
+      <div class="g2" style="gap:20px">
+        <div><div style="font-size:12px;font-weight:700;color:var(--sub);margin-bottom:8px">التدفق التراكمي</div><div style="height:220px"><canvas id="chC"></canvas></div></div>
+        <div><div style="font-size:12px;font-weight:700;color:var(--sub);margin-bottom:8px">الإيراد والمصروف والنتيجة</div><div style="height:220px"><canvas id="chI"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head green"><i class="fas fa-table"></i>جدول التدفقات النقدية السنوية</div>
+    <div style="overflow-x:auto">
+      <table class="cf-table">
+        <thead><tr>
+          <th>السنة</th><th>إيجار/م²</th><th>PGI</th><th>EGI</th><th>OPEX</th><th>NOI</th><th>قسط بنكي</th><th>صافي CF</th><th>تراكمي</th>
+        </tr></thead>
+        <tbody>${d.cashFlow.map(y=>`<tr class="${y.isGrace?'cf-grace':y.cumulativeCash>=0?'cf-pos':'cf-neg'}">
+          <td><strong>${y.year}${y.isGrace?' 🏗️':''}</strong></td>
+          <td>${y.isGrace?'—':n(y.currentRent)}</td>
+          <td>${y.fmtPGI}</td>
+          <td>${y.fmtEGI}</td>
+          <td style="color:#dc2626">${y.fmtOpex}</td>
+          <td style="color:var(--blue)">${y.fmtNOI}</td>
+          <td>${y.fmtLoan}</td>
+          <td style="font-weight:800">${y.fmtNet}</td>
+          <td style="font-weight:900;color:${y.cumulativeCash>=0?'var(--green)':'#dc2626'}">${y.fmtCumulative}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+  </div>`
+  const el=document.getElementById('feasOut')
+  el.innerHTML=h;el.classList.remove('hid')
+  el.scrollIntoView({behavior:'smooth',block:'start'})
+  setTimeout(()=>drawCharts(d),200)
+}
+
+function drawCharts(d){
+  const labels=d.cashFlow.map(y=>'س'+y.year)
+  new Chart(document.getElementById('chC'),{
+    type:'line',
+    data:{labels,datasets:[{label:'تراكمي',data:d.cashFlow.map(y=>y.cumulativeCash),borderColor:'#1e3a5f',borderWidth:2.5,tension:0.4,fill:true,
+      backgroundColor:ctx=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,200);g.addColorStop(0,'rgba(30,58,95,.2)');g.addColorStop(1,'rgba(30,58,95,0)');return g},
+      pointRadius:4,pointBackgroundColor:d.cashFlow.map(y=>y.cumulativeCash>=0?'#22c55e':'#ef4444'),pointBorderColor:'#fff',pointBorderWidth:1.5
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+n(ctx.raw)+' درهم'}}},
+      scales:{y:{ticks:{callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v}},x:{ticks:{font:{size:10}}}}}
+  })
+  new Chart(document.getElementById('chI'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'PGI',data:d.cashFlow.map(y=>y.pgi),backgroundColor:'rgba(34,197,94,.7)',borderRadius:3},
+      {label:'OPEX',data:d.cashFlow.map(y=>y.totalOpex),backgroundColor:'rgba(239,68,68,.7)',borderRadius:3},
+      {label:'NOI',data:d.cashFlow.map(y=>y.noi),backgroundColor:'rgba(37,99,235,.85)',borderRadius:3},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:10}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+n(ctx.raw)+' درهم'}}},
+      scales:{y:{ticks:{callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v}},x:{ticks:{font:{size:10}}}}}
+  })
+}
+
+function n(v){return(+v||0).toLocaleString('ar-AE',{minimumFractionDigits:0,maximumFractionDigits:0})}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+buildServicesGrid('homeServGrid', 6)
+buildServicesGrid('allServGrid', 0)
+buildServList()
+buildProjectsGrid('all')
+// لا تشغّل دوال الأدوات هنا — العناصر غير موجودة في الـ DOM بعد (الصفحة hidden)
+// يتم تشغيلها عند فتح صفحة الأدوات
+
+// Event listeners — مع حماية null
+// NOTE: الـ ; مهمة جداً قبل [ لتجنب مشكلة ASI مع السطر السابق
+;['f_mg','f_mt','f_ins','f_ut'].forEach(id=>{
+  const el=document.getElementById(id)
+  if(el) el.addEventListener('input',updOpexPrev)
+})
+;['f_mb','f_me','f_mey','f_mr','f_y'].forEach(id=>{
+  const el=document.getElementById(id)
+  if(el) el.addEventListener('input',updMusPrev)
+})
+
+// Navbar scroll effect
+window.addEventListener('scroll',()=>{
+  const nav=document.getElementById('navbar')
+  if(window.scrollY>50) nav.style.boxShadow='0 4px 30px rgba(0,0,0,.5)'
+  else nav.style.boxShadow='none'
+})
+
+// إخفاء Loading Screen بعد تحميل الصفحة
+window.addEventListener('load',()=>{
+  const loader=document.getElementById('app-loader')
+  if(loader){
+    setTimeout(()=>{
+      loader.classList.add('done')
+      setTimeout(()=>loader.remove(),600)
+    },200)
+  }
+})
+// fallback إذا تأخر الـ load event
+setTimeout(()=>{
+  const loader=document.getElementById('app-loader')
+  if(loader){loader.classList.add('done');setTimeout(()=>loader.remove(),600)}
+},3000)
+</script>
+</body>
+</html>

@@ -1,19 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Intelligence Module — Entry point
-"""
+"""AI Engine Core - Lazy imports to avoid crash on missing dependencies"""
 
-from .license_reader import extract_company_from_license, smart_fill_company_data
-from .authority_detector import detect_issuing_authority, authority_to_form_pipeline
-from .tender_parser import DeepTenderParser
-from .orchestrator import run_full_intelligence
+def run_full_intelligence(*args, **kwargs):
+    """Lazy import to avoid crash on missing optional deps"""
+    from .orchestrator import run_full_intelligence as _run
+    return _run(*args, **kwargs)
 
-__all__ = [
-    'extract_company_from_license',
-    'smart_fill_company_data',
-    'detect_issuing_authority',
-    'authority_to_form_pipeline',
-    'DeepTenderParser',
-    'run_full_intelligence',
-]
+
+__all__ = ['run_full_intelligence']

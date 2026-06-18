@@ -1,15 +1,6 @@
 """
 مساندة 2.0 — Main FastAPI Application
 =====================================
-تطبيق موحّد بيخدم:
-1. الموقع العام (Public Website)
-2. حاسبات BOQ + Feasibility
-3. Client Portal
-4. Admin Panel + CRM
-5. AI Engine للمناقصات
-
-Author: Musanada Engineering Consultancy
-License: Proprietary
 """
 
 import os
@@ -34,10 +25,9 @@ from app.routers import (
 )
 
 
-# ===== Lifespan Management =====
+# ===== Lifespan =====
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup & Shutdown events."""
     print("🚀 مساندة 2.0 — Starting up...")
     print(f"📍 Environment: {settings.ENVIRONMENT}")
     print(f"🌐 Frontend dir: {settings.FRONTEND_DIR}")
@@ -55,7 +45,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# ===== CORS =====
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,
@@ -64,7 +54,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ===== Routers (API) =====
+# Routers
 app.include_router(public.router, prefix="/api/public", tags=["Public"])
 app.include_router(calculators.router, prefix="/api/calculators", tags=["Calculators"])
 app.include_router(services_router.router, prefix="/api/services", tags=["Services"])
@@ -74,7 +64,6 @@ app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
 app.include_router(ai_tenders.router, prefix="/api/tenders", tags=["AI Tenders"])
 
 
-# ===== Health Check =====
 @app.get("/healthz")
 async def health_check():
     return {
@@ -87,42 +76,36 @@ async def health_check():
 
 # ===== Static Files (Frontend) =====
 FRONTEND_DIR = Path(settings.FRONTEND_DIR)
-if FRONTEND_DIR.exists():
-    # Static assets (CSS, JS, images, fonts)
+if FRONTEND_DIR.exists() and (FRONTEND_DIR / "static").exists():
     app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR / "static")), name="static")
+
+
+# Serve frontend
+@app.get("/{full_path:path}")
+async def serve_frontend(request: Request, full_path: str):
+    if full_path.startswith("api/") or full_path.startswith("static/"):
+        return JSONResponse({"error": "Not found"}, status_code=404)
     
-    # Serve frontend for any non-API route (SPA fallback)
-    @app.get("/{full_path:path}")
-    async def serve_frontend(request: Request, full_path: str):
-        # Don't catch API routes
-        if full_path.startswith("api/") or full_path.startswith("static/"):
-            return JSONResponse({"error": "Not found"}, status_code=404)
-        
-        # Map specific routes
-        route_map = {
-            "": "index.html",
-            "portal": "portal.html",
-            "admin": "admin.html",
-            "login": "login.html",
-            "services": "services.html",
-            "projects": "projects.html",
-            "calculators": "calculators.html",
-            "contact": "contact.html",
-        }
-        
-        # Default to index.html (SPA)
-        filename = route_map.get(full_path.rstrip("/"), "index.html")
-        file_path = FRONTEND_DIR / filename
-        
-        if file_path.exists():
-            return FileResponse(file_path)
-        
-        # Fallback to index.html for unknown routes
-        index_path = FRONTEND_DIR / "index.html"
-        if index_path.exists():
-            return FileResponse(index_path)
-        
-        return JSONResponse({"error": "Frontend not built"}, status_code=404)
+    if not FRONTEND_DIR.exists():
+        return JSONResponse({
+            "message": "مساندة 2.0 Backend",
+            "note": "Frontend not deployed yet",
+            "api_docs": "/api/docs",
+            "health": "/healthz"
+        })
+    
+    # Default to index.html
+    file_path = FRONTEND_DIR / (full_path if full_path else "index.html")
+    
+    if file_path.exists() and file_path.is_file():
+        return FileResponse(file_path)
+    
+    # Fallback
+    index_path = FRONTEND_DIR / "index.html"
+    if index_path.exists():
+        return FileResponse(index_path)
+    
+    return JSONResponse({"error": "Page not found"}, status_code=404)
 
 
 if __name__ == "__main__":

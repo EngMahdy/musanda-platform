@@ -9,7 +9,6 @@ from sqlalchemy.orm import sessionmaker, relationship
 import enum
 import os
 
-# Database URL
 DB_PATH = os.getenv("DATABASE_URL", "sqlite:////tmp/musanada.db")
 engine = create_engine(DB_PATH, connect_args={"check_same_thread": False} if "sqlite" in DB_PATH else {})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -44,7 +43,17 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
-    projects = relationship("Project", back_populates="client")
+    # Explicitly specify which FK for each relationship
+    projects = relationship(
+        "Project", 
+        back_populates="client", 
+        foreign_keys="Project.client_id"
+    )
+    assigned_projects = relationship(
+        "Project",
+        back_populates="assigned_to",
+        foreign_keys="Project.assigned_to_id"
+    )
 
 
 class Project(Base):
@@ -68,6 +77,7 @@ class Project(Base):
     completed_at = Column(DateTime, nullable=True)
     
     client = relationship("User", back_populates="projects", foreign_keys=[client_id])
+    assigned_to = relationship("User", back_populates="assigned_projects", foreign_keys=[assigned_to_id])
     documents = relationship("Document", back_populates="project")
     updates = relationship("ProjectUpdate", back_populates="project")
 
@@ -82,7 +92,7 @@ class Document(Base):
     file_size_kb = Column(Float)
     uploaded_by_id = Column(Integer, ForeignKey("users.id"))
     uploaded_at = Column(DateTime, default=datetime.utcnow)
-    category = Column(String)  # license, contract, financial, technical, etc.
+    category = Column(String)
     
     project = relationship("Project", back_populates="documents")
 
@@ -94,14 +104,13 @@ class ProjectUpdate(Base):
     project_id = Column(Integer, ForeignKey("projects.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
     message = Column(Text, nullable=False)
-    status_change = Column(String)  # if status changed
+    status_change = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     project = relationship("Project", back_populates="updates")
 
 
 class Lead(Base):
-    """Public leads from contact forms"""
     __tablename__ = "leads"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -111,14 +120,13 @@ class Lead(Base):
     company = Column(String)
     service_interest = Column(String)
     message = Column(Text)
-    source = Column(String, default="website")  # website, referral, ad, etc.
-    status = Column(String, default="new")  # new, contacted, qualified, converted, lost
+    source = Column(String, default="website")
+    status = Column(String, default="new")
     converted_to_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
 def get_db():
-    """Dependency for FastAPI"""
     db = SessionLocal()
     try:
         yield db
@@ -127,6 +135,5 @@ def get_db():
 
 
 def init_db():
-    """Initialize database — create tables"""
     Base.metadata.create_all(bind=engine)
     print("✅ Database tables created")
